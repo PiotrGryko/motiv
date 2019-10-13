@@ -3,11 +3,6 @@ package com.motiv.example.dao
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
-import androidx.fragment.app.*
-import dagger.*
-import dagger.android.*
-import dagger.android.support.*
-import javax.inject.*
 
 public class LocalStorage {
 

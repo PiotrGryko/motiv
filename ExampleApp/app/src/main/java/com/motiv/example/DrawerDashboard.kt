@@ -5,26 +5,15 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.*
-import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.motiv.example.dao.DaoRepository
+import com.motiv.example.dao.DaoRepositoryFactory
 import com.motiv.example.dao.LocalStorage
-import com.motiv.example.databinding.DrawerdashboardBinding
-import dagger.*
-import dagger.android.*
-import dagger.android.support.*
-import javax.inject.*
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.drawerdashboard.*
 
-public class DrawerDashboard : AppCompatActivity(), HasSupportFragmentInjector {
-
-    private lateinit var drawerdashboardBinding: DrawerdashboardBinding
-
-    @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+public class DrawerDashboard : AppCompatActivity() {
 
     private lateinit var user: com.motiv.example.User
 
@@ -36,17 +25,13 @@ public class DrawerDashboard : AppCompatActivity(), HasSupportFragmentInjector {
 
     private lateinit var viewPagerFragmentsAdapter: ViewPagerFragmentsAdapter
 
-    @Inject
-    lateinit var goApi: GoApi
+    private lateinit var goApi: GoApi
 
-    @Inject
-    lateinit var authApi: AuthApi
+    private lateinit var authApi: AuthApi
 
-    @Inject
-    lateinit var daoRepository: DaoRepository
+    private lateinit var daoRepository: DaoRepository
 
-    @Inject
-    lateinit var localStorage: LocalStorage
+    private lateinit var localStorage: LocalStorage
 
     private lateinit var navigationController: NavigationController
 
@@ -60,12 +45,9 @@ public class DrawerDashboard : AppCompatActivity(), HasSupportFragmentInjector {
 
     private lateinit var headertextview11: TextView
 
-    override fun supportFragmentInjector(): AndroidInjector<Fragment> {
-        return dispatchingAndroidInjector
-    } override fun onCreate(savedInstanceState: android.os.Bundle?) {
-        AndroidInjection.inject(this)
+    override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
-        drawerdashboardBinding = DataBindingUtil.setContentView(this, R.layout.drawerdashboard)
+        setContentView(R.layout.drawerdashboard)
 
         user = com.motiv.example.User.fromJson(getIntent().getStringExtra("user"))
 
@@ -73,17 +55,20 @@ public class DrawerDashboard : AppCompatActivity(), HasSupportFragmentInjector {
         postsAdapter = PostsAdapter()
         photosPagerAdapter = PhotosPagerAdapter()
         viewPagerFragmentsAdapter = ViewPagerFragmentsAdapter(this@DrawerDashboard.getSupportFragmentManager())
+        daoRepository = DaoRepositoryFactory.getInstance(this@DrawerDashboard)
+        localStorage = LocalStorage.getInstance(this@DrawerDashboard)
         navigationController = NavigationController(this@DrawerDashboard)
-        drawerlayout00 = drawerdashboardBinding.drawerlayout00
-        navigationview11 = drawerdashboardBinding.navigationview11
+        goApi = GoApiFactory.getInstance(localStorage)
+        authApi = AuthApiFactory.getInstance(localStorage)
+        drawerlayout00 = findViewById<DrawerLayout>(R.id.drawerlayout00)
+        navigationview11 = findViewById<NavigationView>(R.id.navigationview11)
         headerlinearlayout00 = navigationview11.getHeaderView(0).findViewById<LinearLayout>(R.id.linearlayout00)
         headerimageview10 = navigationview11.getHeaderView(0).findViewById<ImageView>(R.id.imageview10)
         headertextview11 = navigationview11.getHeaderView(0).findViewById<TextView>(R.id.textview11)
 
         headertextview11.setText(user.getFirst_name())
-        Glide.with(this@DrawerDashboard)
-            .load(user.getLinks().getAvatar().getHref())
-            .into(headerimageview10)
+
+        Picasso.with(this@DrawerDashboard).load(user.getLinks().getAvatar().getHref()).into(headerimageview10)
         headerlinearlayout00.setOnClickListener(object : android.view.View.OnClickListener {
             override fun onClick(argument0: android.view.View) {
                 navigationController.startUserActivity(user)
