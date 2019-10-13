@@ -1,20 +1,12 @@
 package com.motiv.example;
 
-import android.widget.ImageView;
 import androidx.annotation.NonNull;
-import androidx.databinding.BindingAdapter;
-import androidx.fragment.app.*;
 import androidx.room.*;
-import com.bumptech.glide.Glide;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 import com.google.gson.reflect.*;
-import dagger.*;
-import dagger.android.*;
-import dagger.android.support.*;
 import java.util.*;
 import java.util.concurrent.*;
-import javax.inject.*;
 
 @Entity(tableName = "links")
 public class Links {
@@ -92,11 +84,6 @@ public class Links {
 
     public void setAvatar(com.motiv.example.Link avatar) {
         this.avatar = avatar;
-    }
-
-    @BindingAdapter({"bind:imageUrl"})
-    public static void loadImage(ImageView view, java.lang.String url) {
-        Glide.with(view.getContext()).load(url).into(view);
     }
 
     public static Links fromJson(String json) {

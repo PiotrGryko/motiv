@@ -3,48 +3,32 @@ package com.motiv.example;
 import android.widget.RelativeLayout;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.*;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.motiv.example.dao.DaoRepository;
+import com.motiv.example.dao.DaoRepositoryFactory;
 import com.motiv.example.dao.LocalStorage;
-import com.motiv.example.databinding.BottomnavigationdashboardBinding;
-import dagger.*;
-import dagger.android.*;
-import dagger.android.support.*;
-import javax.inject.*;
 
 public class BottomNavigationDashboard extends AppCompatActivity
-        implements BottomNavigationDashboardContract.View, HasSupportFragmentInjector {
+        implements BottomNavigationDashboardContract.View {
 
-    private BottomnavigationdashboardBinding bottomnavigationdashboardBinding;
-    @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     private BottomNavigationDashboardContract.Presenter presenter;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
     private PhotosPagerAdapter photosPagerAdapter;
     private ViewPagerFragmentsAdapter viewPagerFragmentsAdapter;
-    @Inject GoApi goApi;
-    @Inject AuthApi authApi;
-    @Inject DaoRepository daoRepository;
-    @Inject LocalStorage localStorage;
+    private GoApi goApi;
+    private AuthApi authApi;
+    private DaoRepository daoRepository;
+    private LocalStorage localStorage;
     private NavigationController navigationController;
     private RelativeLayout relativelayout00;
     private BottomNavigationView bottomnavigationview11;
 
     @Override
-    public AndroidInjector<Fragment> supportFragmentInjector() {
-
-        return dispatchingAndroidInjector;
-    }
-
-    @Override
     protected void onCreate(@Nullable android.os.Bundle savedInstanceState) {
 
-        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
-        bottomnavigationdashboardBinding =
-                DataBindingUtil.setContentView(this, R.layout.bottomnavigationdashboard);
+        setContentView(R.layout.bottomnavigationdashboard);
 
         usersListAdapter = new UsersListAdapter();
         postsAdapter = new PostsAdapter();
@@ -52,9 +36,13 @@ public class BottomNavigationDashboard extends AppCompatActivity
         viewPagerFragmentsAdapter =
                 new ViewPagerFragmentsAdapter(
                         BottomNavigationDashboard.this.getSupportFragmentManager());
+        daoRepository = DaoRepositoryFactory.getInstance(BottomNavigationDashboard.this);
+        localStorage = LocalStorage.getInstance(BottomNavigationDashboard.this);
         navigationController = new NavigationController(BottomNavigationDashboard.this);
-        relativelayout00 = bottomnavigationdashboardBinding.relativelayout00;
-        bottomnavigationview11 = bottomnavigationdashboardBinding.bottomnavigationview11;
+        goApi = GoApiFactory.getInstance(localStorage);
+        authApi = AuthApiFactory.getInstance(localStorage);
+        relativelayout00 = (RelativeLayout) findViewById(R.id.relativelayout00);
+        bottomnavigationview11 = (BottomNavigationView) findViewById(R.id.bottomnavigationview11);
 
         presenter =
                 new BottomNavigationDashboardPresenter(

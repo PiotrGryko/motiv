@@ -1,6 +1,5 @@
 package com.motiv.example.dao;
 
-import androidx.fragment.app.*;
 import androidx.room.*;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
@@ -16,11 +15,7 @@ import com.motiv.example.PostsListResponse;
 import com.motiv.example.User;
 import com.motiv.example.UserResponse;
 import com.motiv.example.UsersResponse;
-import dagger.*;
-import dagger.android.*;
-import dagger.android.support.*;
 import java.util.List;
-import javax.inject.*;
 
 public class MyTypeConverter {
 
