@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/UsersFragment">
+    <fragment
+        android:id="@+id/UsersFragment"
+        android:name="com.motiv.example.UsersFragment"
+        android:label="activity"
+        tools:layout="@layout/usersfragment">
+        
+        </fragment><fragment
+        android:id="@+id/PostsFragment"
+        android:name="com.motiv.example.PostsFragment"
+        android:label="activity"
+        tools:layout="@layout/postsfragment">
+        
+        </fragment><fragment
+        android:id="@+id/PhotosFragment"
+        android:name="com.motiv.example.PhotosFragment"
+        android:label="activity"
+        tools:layout="@layout/photosfragment">
+        
+        </fragment><fragment
+        android:id="@+id/UsersFragment"
+        android:name="com.motiv.example.UsersFragment"
+        android:label="activity"
+        tools:layout="@layout/usersfragment">
+        
+        </fragment><activity
+        android:id="@+id/MainActivity"
+        android:name="com.motiv.example.MainActivity"
+        android:label="activity"
+        tools:layout="@layout/mainactivity"/><activity
+        android:id="@+id/DrawerDashboard"
+        android:name="com.motiv.example.DrawerDashboard"
+        android:label="activity"
+        tools:layout="@layout/drawerdashboard"/><activity
+        android:id="@+id/UserActivity"
+        android:name="com.motiv.example.UserActivity"
+        android:label="activity"
+        tools:layout="@layout/useractivity"/><activity
+        android:id="@+id/PostDetailsActivity"
+        android:name="com.motiv.example.PostDetailsActivity"
+        android:label="activity"
+        tools:layout="@layout/postdetailsactivity"/><activity
+        android:id="@+id/BottomNavigationDashboard"
+        android:name="com.motiv.example.BottomNavigationDashboard"
+        android:label="activity"
+        tools:layout="@layout/bottomnavigationdashboard"/><activity
+        android:id="@+id/ViewPagerActivity"
+        android:name="com.motiv.example.ViewPagerActivity"
+        android:label="activity"
+        tools:layout="@layout/viewpageractivity"/>
+</navigation>

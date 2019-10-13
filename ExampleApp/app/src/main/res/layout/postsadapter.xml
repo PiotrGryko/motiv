@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.widget.LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:id="@+id/linearlayout00">
+    <android.widget.TextView
+        android:padding="10dp"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/textview10"
+        android:text="Hello, I am a TextView">
+    </android.widget.TextView>
+</android.widget.LinearLayout>

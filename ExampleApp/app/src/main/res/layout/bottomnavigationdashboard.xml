@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.widget.RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/relativelayout00">
+    <fragment
+        android:layout_above="@id/bottomnavigationview11"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:id="@+id/nav_host_fragment"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/bottomnavigationdashboard_graph">
+    </fragment>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/bottomnavigationview11"
+        app:itemBackground="@color/colorPrimary"
+        app:itemTextColor="@android:color/white"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottomnavigationdashboard_bottom_menu"
+        app:itemIconTint="@android:color/black">
+    </com.google.android.material.bottomnavigation.BottomNavigationView>
+</android.widget.RelativeLayout>
