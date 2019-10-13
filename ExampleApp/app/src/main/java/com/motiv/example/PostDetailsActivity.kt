@@ -4,23 +4,11 @@ import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.*
 import com.motiv.example.dao.DaoRepository
 import com.motiv.example.dao.LocalStorage
-import com.motiv.example.databinding.PostdetailsactivityBinding
-import dagger.*
-import dagger.android.*
-import dagger.android.support.*
-import javax.inject.*
 import kotlinx.android.synthetic.main.postdetailsactivity.*
 
-public class PostDetailsActivity : AppCompatActivity(), HasSupportFragmentInjector {
-
-    private lateinit var postdetailsactivityBinding: PostdetailsactivityBinding
-
-    @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+public class PostDetailsActivity : AppCompatActivity() {
 
     private lateinit var postId: String
 
@@ -32,17 +20,13 @@ public class PostDetailsActivity : AppCompatActivity(), HasSupportFragmentInject
 
     private lateinit var viewPagerFragmentsAdapter: ViewPagerFragmentsAdapter
 
-    @Inject
-    lateinit var goApi: GoApi
+    private lateinit var goApi: GoApi
 
-    @Inject
-    lateinit var authApi: AuthApi
+    private lateinit var authApi: AuthApi
 
-    @Inject
-    lateinit var daoRepository: DaoRepository
+    private var daoRepository: DaoRepository = DaoRepositoryFactory.getInstance(this@PostDetailsActivity)
 
-    @Inject
-    lateinit var localStorage: LocalStorage
+    private lateinit var localStorage: LocalStorage
 
     private lateinit var navigationController: NavigationController
 
@@ -52,12 +36,9 @@ public class PostDetailsActivity : AppCompatActivity(), HasSupportFragmentInject
 
     private lateinit var textview11: TextView
 
-    override fun supportFragmentInjector(): AndroidInjector<Fragment> {
-        return dispatchingAndroidInjector
-    } override fun onCreate(savedInstanceState: android.os.Bundle?) {
-        AndroidInjection.inject(this)
+    override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
-        postdetailsactivityBinding = DataBindingUtil.setContentView(this, R.layout.postdetailsactivity)
+        setContentView(R.layout.postdetailsactivity)
 
         val postId = getIntent().getStringExtra("postId")
 
@@ -65,10 +46,13 @@ public class PostDetailsActivity : AppCompatActivity(), HasSupportFragmentInject
         postsAdapter = PostsAdapter()
         photosPagerAdapter = PhotosPagerAdapter()
         viewPagerFragmentsAdapter = ViewPagerFragmentsAdapter(this@PostDetailsActivity.getSupportFragmentManager())
+        localStorage = LocalStorage.getInstance(this@PostDetailsActivity)
         navigationController = NavigationController(this@PostDetailsActivity)
-        linearlayout00 = postdetailsactivityBinding.linearlayout00
-        textview10 = postdetailsactivityBinding.textview10
-        textview11 = postdetailsactivityBinding.textview11
+        goApi = GoApiFactory.getInstance(localStorage)
+        authApi = AuthApiFactory.getInstance(localStorage)
+        linearlayout00 = findViewById<LinearLayout>(R.id.linearlayout00)
+        textview10 = findViewById<TextView>(R.id.textview10)
+        textview11 = findViewById<TextView>(R.id.textview11)
 
         daoRepository.loadPost(
             postId,
