@@ -10,14 +10,20 @@ import androidx.fragment.app.*
 import androidx.recyclerview.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.motiv.example.dao.DaoRepository
-import com.motiv.example.dao.DaoRepositoryFactory
 import com.motiv.example.dao.LocalStorage
-import com.motiv.example.databinding.UsersfragmentBinding
+import dagger.*
+import dagger.android.*
+import dagger.android.support.*
+import javax.inject.*
+import kotlin.collections.List
 import kotlinx.android.synthetic.main.usersfragment.*
 
-public class UsersFragment : Fragment() {
+public class UsersFragment : Fragment(), UsersFragmentContract.View {
 
-    private lateinit var usersfragmentBinding: UsersfragmentBinding
+    @Inject
+    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+
+    private lateinit var presenter: UsersFragmentContract.Presenter
 
     private lateinit var usersListAdapter: UsersListAdapter
 
@@ -27,13 +33,17 @@ public class UsersFragment : Fragment() {
 
     private lateinit var viewPagerFragmentsAdapter: ViewPagerFragmentsAdapter
 
-    private lateinit var goApi: GoApi
+    @Inject
+    lateinit var goApi: GoApi
 
-    private lateinit var authApi: AuthApi
+    @Inject
+    lateinit var authApi: AuthApi
 
-    private lateinit var daoRepository: DaoRepository
+    @Inject
+    lateinit var daoRepository: DaoRepository
 
-    private lateinit var localStorage: LocalStorage
+    @Inject
+    lateinit var localStorage: LocalStorage
 
     private lateinit var navigationController: NavigationController
 
@@ -42,37 +52,36 @@ public class UsersFragment : Fragment() {
     private lateinit var recyclerview10: RecyclerView
 
     override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?, savedInstanceState: Bundle?): View {
-        usersfragmentBinding = UsersfragmentBinding.inflate(inflater)
+        val v: View = inflater.inflate(R.layout.usersfragment, parent, false)
 
         usersListAdapter = UsersListAdapter()
         postsAdapter = PostsAdapter()
         photosPagerAdapter = PhotosPagerAdapter()
         viewPagerFragmentsAdapter = ViewPagerFragmentsAdapter(activity!!.getSupportFragmentManager())
-        daoRepository = DaoRepositoryFactory.getInstance(activity!!)
-        localStorage = LocalStorage.getInstance(activity!!)
         navigationController = NavigationController(activity!!)
-        goApi = GoApiFactory.getInstance(localStorage)
-        authApi = AuthApiFactory.getInstance(localStorage)
-        linearlayout00 = usersfragmentBinding.linearlayout00
-        recyclerview10 = usersfragmentBinding.recyclerview10
+        linearlayout00 = v.findViewById<LinearLayout>(R.id.linearlayout00)
+        recyclerview10 = v.findViewById<RecyclerView>(R.id.recyclerview10)
+        presenter = UsersFragmentPresenter(this@UsersFragment, goApi, authApi, daoRepository, localStorage)
 
         recyclerview10?.setLayoutManager(LinearLayoutManager(activity!!))
 
         recyclerview10?.setAdapter(usersListAdapter)
-        goApi.getUsersList(object : com.motiv.example.OnResponseListener<com.motiv.example.UsersResponse> {
-            override fun onSuccess(argument0: com.motiv.example.UsersResponse) {
-                usersListAdapter.setData(argument0.getResult())
-                Toast.makeText(activity!!, argument0.getMeta().getMessage(), Toast.LENGTH_LONG).show()
-            } override fun onError(argument0: Exception) {
-                Toast.makeText(activity!!, "error fetching data", Toast.LENGTH_LONG).show()
-            } 
-        })
+        presenter.goApigetUsersList()
         usersListAdapter.setOnItemClickListener(object : com.motiv.example.UsersListAdapter.OnItemClickListener {
             override fun onItemClick(argument0: Int, argument1: com.motiv.example.User) {
-                navigationController.startUserActivity(argument1)
+                presenter.eloonItemClick(argument0, argument1)
             } 
         })
 
-        return usersfragmentBinding.getRoot()
+        return v
+    } override fun usersListAdaptersetData(arg0: List<com.motiv.example.User>) {
+        usersListAdapter.setData(arg0)
+    } override fun showToast(arg0: String) {
+        Toast.makeText(activity!!, arg0, Toast.LENGTH_LONG).show()
+    } override fun navigationControllerstartUserActivity(arg0: com.motiv.example.User) {
+        navigationController.startUserActivity(arg0)
+    } override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        AndroidSupportInjection.inject(this)
     }
 }

@@ -6,16 +6,21 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.*
 import com.motiv.example.dao.DaoRepository
-import com.motiv.example.dao.DaoRepositoryFactory
 import com.motiv.example.dao.LocalStorage
-import com.motiv.example.databinding.MainactivityBinding
+import dagger.*
+import dagger.android.*
+import dagger.android.support.*
+import javax.inject.*
 import kotlinx.android.synthetic.main.mainactivity.*
 
-public class MainActivity : AppCompatActivity() {
+public class MainActivity : AppCompatActivity(), MainActivityContract.View, HasSupportFragmentInjector {
 
-    private lateinit var mainactivityBinding: MainactivityBinding
+    @Inject
+    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+
+    private lateinit var presenter: MainActivityContract.Presenter
 
     private lateinit var usersListAdapter: UsersListAdapter
 
@@ -25,13 +30,17 @@ public class MainActivity : AppCompatActivity() {
 
     private lateinit var viewPagerFragmentsAdapter: ViewPagerFragmentsAdapter
 
-    private lateinit var goApi: GoApi
+    @Inject
+    lateinit var goApi: GoApi
 
-    private lateinit var authApi: AuthApi
+    @Inject
+    lateinit var authApi: AuthApi
 
-    private lateinit var daoRepository: DaoRepository
+    @Inject
+    lateinit var daoRepository: DaoRepository
 
-    private lateinit var localStorage: LocalStorage
+    @Inject
+    lateinit var localStorage: LocalStorage
 
     private lateinit var navigationController: NavigationController
 
@@ -41,42 +50,34 @@ public class MainActivity : AppCompatActivity() {
 
     private lateinit var button11: Button
 
-    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+    override fun supportFragmentInjector(): AndroidInjector<Fragment> {
+        return dispatchingAndroidInjector
+    } override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        mainactivityBinding = DataBindingUtil.setContentView(this, R.layout.mainactivity)
+        setContentView(R.layout.mainactivity)
 
         usersListAdapter = UsersListAdapter()
         postsAdapter = PostsAdapter()
         photosPagerAdapter = PhotosPagerAdapter()
         viewPagerFragmentsAdapter = ViewPagerFragmentsAdapter(this@MainActivity.getSupportFragmentManager())
-        daoRepository = DaoRepositoryFactory.getInstance(this@MainActivity)
-        localStorage = LocalStorage.getInstance(this@MainActivity)
         navigationController = NavigationController(this@MainActivity)
-        goApi = GoApiFactory.getInstance(localStorage)
-        authApi = AuthApiFactory.getInstance(localStorage)
-        linearlayout00 = mainactivityBinding.linearlayout00
-        edittext10 = mainactivityBinding.edittext10
-        button11 = mainactivityBinding.button11
+        linearlayout00 = findViewById<LinearLayout>(R.id.linearlayout00)
+        edittext10 = findViewById<EditText>(R.id.edittext10)
+        button11 = findViewById<Button>(R.id.button11)
+
+        presenter = MainActivityPresenter(this@MainActivity, goApi, authApi, daoRepository, localStorage)
 
         button11.setOnClickListener(object : android.view.View.OnClickListener {
             override fun onClick(argument0: android.view.View) {
-                authApi.getToken(object : com.motiv.example.OnResponseListener<com.motiv.example.AuthToken> {
-                    override fun onSuccess(argument0: com.motiv.example.AuthToken) {
-                        localStorage.putString("token", argument0.getToken())
-                        goApi.getUser(
-                            edittext10.getText().toString(),
-                            object : com.motiv.example.OnResponseListener<com.motiv.example.UserResponse> {
-                                override fun onSuccess(argument0: com.motiv.example.UserResponse) {
-                                    Toast.makeText(this@MainActivity, argument0.getMeta().getMessage(), Toast.LENGTH_LONG).show()
-                                    navigationController.startDrawerDashboard(argument0.getResult())
-                                } override fun onError(argument0: Exception) {
-                                } 
-                            }
-                        )
-                    } override fun onError(argument0: Exception) {
-                    } 
-                })
+                presenter.eloonClick(argument0)
             } 
         })
+    } override fun edittext10getText(): CharSequence {
+        return edittext10.getText().toString()
+    } override fun showToast(arg0: String) {
+        Toast.makeText(this@MainActivity, arg0, Toast.LENGTH_LONG).show()
+    } override fun navigationControllerstartDrawerDashboard(arg0: com.motiv.example.User) {
+        navigationController.startDrawerDashboard(arg0)
     }
 }

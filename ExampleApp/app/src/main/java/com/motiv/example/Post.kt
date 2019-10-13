@@ -1,39 +1,36 @@
  
 package com.motiv.example
-import android.widget.ImageView
 import androidx.annotation.NonNull
-import androidx.databinding.BindingAdapter
-import androidx.room.*
+import androidx.fragment.app.*
 import com.google.gson.*
 import com.google.gson.annotations.*
 import com.google.gson.reflect.*
-import com.squareup.picasso.Picasso
+import dagger.*
+import dagger.android.*
+import dagger.android.support.*
+import io.realm.*
 import java.util.*
 import java.util.concurrent.*
-@Entity(tableName = "post")
-public class Post {
+import javax.inject.*
 
-    @NonNull
-    @PrimaryKey
+public open class Post : RealmObject() {
 
-    private var id: String = UUID.randomUUID().toString()
-    @ColumnInfo(name = "resultOwnerId")@ForeignKey(entity = com.motiv.example.PostsListResponse::class, parentColumns = ["id"], childColumns = ["resultOwnerId"])
-    private
-    var resultOwnerId: String = ""
-    @ColumnInfo(name = "linksId")@ForeignKey(entity = com.motiv.example.Links::class, parentColumns = ["id"], childColumns = ["linksId"])
-    private
-    var linksId: String = ""
-    @ColumnInfo(name = "user_id")
+    @NonNull private var id: String = UUID.randomUUID().toString()
+
     @SerializedName("user_id")
+
     private var user_id: String = ""
-    @Ignore
+
     @SerializedName("_links")
+
     private var links: com.motiv.example.Links = com.motiv.example.Links()
-    @ColumnInfo(name = "title")
+
     @SerializedName("title")
+
     private var title: String = ""
-    @ColumnInfo(name = "body")
+
     @SerializedName("body")
+
     private var body: String = ""
 
     fun getId(): String {
@@ -56,9 +53,6 @@ public class Post {
         return this.body
     } fun setBody(body: String) {
         this.body = body
-    } @BindingAdapter("bind:imageUrl")
-    fun loadImage(view: ImageView, url: String) {
-        Picasso.with(view.getContext()).load(url).into(view)
     } companion object {
         val gson: Gson = Gson()
         fun fromJson(json: String): Post {
@@ -76,5 +70,5 @@ public class Post {
         fun fromJsonArray(json: String): Array<Post> {
             return gson.fromJson(json, Array<Post>::class.java)
         }
-    } public fun getResultOwnerId(): String { return this.resultOwnerId; }; public fun setResultOwnerId(resultOwnerId: String) { this.resultOwnerId = resultOwnerId; } public fun getLinksId(): String { return this.linksId; }; public fun setLinksId(linksId: String) { this.linksId = linksId; }
+    }
 }

@@ -3,17 +3,22 @@ package com.motiv.example
 import android.os.Bundle
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.motiv.example.dao.DaoRepository
-import com.motiv.example.dao.DaoRepositoryFactory
 import com.motiv.example.dao.LocalStorage
-import com.motiv.example.databinding.BottomnavigationdashboardBinding
+import dagger.*
+import dagger.android.*
+import dagger.android.support.*
+import javax.inject.*
 import kotlinx.android.synthetic.main.bottomnavigationdashboard.*
 
-public class BottomNavigationDashboard : AppCompatActivity() {
+public class BottomNavigationDashboard : AppCompatActivity(), BottomNavigationDashboardContract.View, HasSupportFragmentInjector {
 
-    private lateinit var bottomnavigationdashboardBinding: BottomnavigationdashboardBinding
+    @Inject
+    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+
+    private lateinit var presenter: BottomNavigationDashboardContract.Presenter
 
     private lateinit var usersListAdapter: UsersListAdapter
 
@@ -23,13 +28,17 @@ public class BottomNavigationDashboard : AppCompatActivity() {
 
     private lateinit var viewPagerFragmentsAdapter: ViewPagerFragmentsAdapter
 
-    private lateinit var goApi: GoApi
+    @Inject
+    lateinit var goApi: GoApi
 
-    private lateinit var authApi: AuthApi
+    @Inject
+    lateinit var authApi: AuthApi
 
-    private lateinit var daoRepository: DaoRepository
+    @Inject
+    lateinit var daoRepository: DaoRepository
 
-    private lateinit var localStorage: LocalStorage
+    @Inject
+    lateinit var localStorage: LocalStorage
 
     private lateinit var navigationController: NavigationController
 
@@ -37,28 +46,31 @@ public class BottomNavigationDashboard : AppCompatActivity() {
 
     private lateinit var bottomnavigationview11: BottomNavigationView
 
-    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+    override fun supportFragmentInjector(): AndroidInjector<Fragment> {
+        return dispatchingAndroidInjector
+    } override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        bottomnavigationdashboardBinding = DataBindingUtil.setContentView(this, R.layout.bottomnavigationdashboard)
+        setContentView(R.layout.bottomnavigationdashboard)
 
         usersListAdapter = UsersListAdapter()
         postsAdapter = PostsAdapter()
         photosPagerAdapter = PhotosPagerAdapter()
         viewPagerFragmentsAdapter = ViewPagerFragmentsAdapter(this@BottomNavigationDashboard.getSupportFragmentManager())
-        daoRepository = DaoRepositoryFactory.getInstance(this@BottomNavigationDashboard)
-        localStorage = LocalStorage.getInstance(this@BottomNavigationDashboard)
         navigationController = NavigationController(this@BottomNavigationDashboard)
-        goApi = GoApiFactory.getInstance(localStorage)
-        authApi = AuthApiFactory.getInstance(localStorage)
-        relativelayout00 = bottomnavigationdashboardBinding.relativelayout00
-        bottomnavigationview11 = bottomnavigationdashboardBinding.bottomnavigationview11
+        relativelayout00 = findViewById<RelativeLayout>(R.id.relativelayout00)
+        bottomnavigationview11 = findViewById<BottomNavigationView>(R.id.bottomnavigationview11)
+
+        presenter = BottomNavigationDashboardPresenter(this@BottomNavigationDashboard, goApi, authApi, daoRepository, localStorage)
 
         bottomnavigationview11.setOnNavigationItemSelectedListener(object : com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemSelectedListener {
             override fun onNavigationItemSelected(argument0: android.view.MenuItem): Boolean {
-                navigationController.startDestinationById(argument0.getItemId())
+                presenter.eloonNavigationItemSelected(argument0)
 
                 return false
             } 
         })
+    } override fun navigationControllerstartDestinationById(arg0: Int) {
+        navigationController.startDestinationById(arg0)
     }
 }

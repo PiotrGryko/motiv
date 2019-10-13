@@ -1,57 +1,60 @@
  
 package com.motiv.example
-import android.widget.ImageView
 import androidx.annotation.NonNull
-import androidx.databinding.BindingAdapter
-import androidx.room.*
+import androidx.fragment.app.*
 import com.google.gson.*
 import com.google.gson.annotations.*
 import com.google.gson.reflect.*
-import com.squareup.picasso.Picasso
+import dagger.*
+import dagger.android.*
+import dagger.android.support.*
+import io.realm.*
 import java.util.*
 import java.util.concurrent.*
-@Entity(tableName = "user")
-public class User {
+import javax.inject.*
 
-    @NonNull
-    @PrimaryKey
+public open class User : RealmObject() {
 
-    private var id: String = UUID.randomUUID().toString()
-    @ColumnInfo(name = "linksId")@ForeignKey(entity = com.motiv.example.Links::class, parentColumns = ["id"], childColumns = ["linksId"])
-    private
-    var linksId: String = ""
-    @ColumnInfo(name = "resultOwnerId")@ForeignKey(entity = com.motiv.example.UsersResponse::class, parentColumns = ["id"], childColumns = ["resultOwnerId"])
-    private
-    var resultOwnerId: String = ""
-    @ColumnInfo(name = "website")
+    @NonNull private var id: String = UUID.randomUUID().toString()
+
     @SerializedName("website")
+
     private var website: String = ""
-    @ColumnInfo(name = "address")
+
     @SerializedName("address")
+
     private var address: String = ""
-    @ColumnInfo(name = "gender")
+
     @SerializedName("gender")
+
     private var gender: String = ""
-    @ColumnInfo(name = "phone")
+
     @SerializedName("phone")
+
     private var phone: String = ""
-    @Ignore
+
     @SerializedName("_links")
+
     private var links: com.motiv.example.Links = com.motiv.example.Links()
-    @ColumnInfo(name = "dob")
+
     @SerializedName("dob")
+
     private var dob: String = ""
-    @ColumnInfo(name = "last_name")
+
     @SerializedName("last_name")
+
     private var last_name: String = ""
-    @ColumnInfo(name = "first_name")
+
     @SerializedName("first_name")
+
     private var first_name: String = ""
-    @ColumnInfo(name = "email")
+
     @SerializedName("email")
+
     private var email: String = ""
-    @ColumnInfo(name = "status")
+
     @SerializedName("status")
+
     private var status: String = ""
 
     fun getId(): String {
@@ -98,9 +101,6 @@ public class User {
         return this.status
     } fun setStatus(status: String) {
         this.status = status
-    } @BindingAdapter("bind:imageUrl")
-    fun loadImage(view: ImageView, url: String) {
-        Picasso.with(view.getContext()).load(url).into(view)
     } companion object {
         val gson: Gson = Gson()
         fun fromJson(json: String): User {
@@ -118,5 +118,5 @@ public class User {
         fun fromJsonArray(json: String): Array<User> {
             return gson.fromJson(json, Array<User>::class.java)
         }
-    } public fun getLinksId(): String { return this.linksId; }; public fun setLinksId(linksId: String) { this.linksId = linksId; } public fun getResultOwnerId(): String { return this.resultOwnerId; }; public fun setResultOwnerId(resultOwnerId: String) { this.resultOwnerId = resultOwnerId; }
+    }
 }

@@ -1,42 +1,40 @@
  
 package com.motiv.example
-import android.widget.ImageView
 import androidx.annotation.NonNull
-import androidx.databinding.BindingAdapter
-import androidx.room.*
+import androidx.fragment.app.*
 import com.google.gson.*
 import com.google.gson.annotations.*
 import com.google.gson.reflect.*
-import com.squareup.picasso.Picasso
+import dagger.*
+import dagger.android.*
+import dagger.android.support.*
+import io.realm.*
 import java.util.*
 import java.util.concurrent.*
-@Entity(tableName = "photo")
-public class Photo {
+import javax.inject.*
 
-    @NonNull
-    @PrimaryKey
+public open class Photo : RealmObject() {
 
-    private var id: String = UUID.randomUUID().toString()
-    @ColumnInfo(name = "resultOwnerId")@ForeignKey(entity = com.motiv.example.PhotosListResponse::class, parentColumns = ["id"], childColumns = ["resultOwnerId"])
-    private
-    var resultOwnerId: String = ""
-    @ColumnInfo(name = "linksId")@ForeignKey(entity = com.motiv.example.Links::class, parentColumns = ["id"], childColumns = ["linksId"])
-    private
-    var linksId: String = ""
-    @ColumnInfo(name = "thumbnail")
+    @NonNull private var id: String = UUID.randomUUID().toString()
+
     @SerializedName("thumbnail")
+
     private var thumbnail: String = ""
-    @Ignore
+
     @SerializedName("_links")
+
     private var links: com.motiv.example.Links = com.motiv.example.Links()
-    @ColumnInfo(name = "album_id")
+
     @SerializedName("album_id")
+
     private var album_id: String = ""
-    @ColumnInfo(name = "title")
+
     @SerializedName("title")
+
     private var title: String = ""
-    @ColumnInfo(name = "url")
+
     @SerializedName("url")
+
     private var url: String = ""
 
     fun getId(): String {
@@ -63,9 +61,6 @@ public class Photo {
         return this.url
     } fun setUrl(url: String) {
         this.url = url
-    } @BindingAdapter("bind:imageUrl")
-    fun loadImage(view: ImageView, url: String) {
-        Picasso.with(view.getContext()).load(url).into(view)
     } companion object {
         val gson: Gson = Gson()
         fun fromJson(json: String): Photo {
@@ -83,5 +78,5 @@ public class Photo {
         fun fromJsonArray(json: String): Array<Photo> {
             return gson.fromJson(json, Array<Photo>::class.java)
         }
-    } public fun getResultOwnerId(): String { return this.resultOwnerId; }; public fun setResultOwnerId(resultOwnerId: String) { this.resultOwnerId = resultOwnerId; } public fun getLinksId(): String { return this.linksId; }; public fun setLinksId(linksId: String) { this.linksId = linksId; }
+    }
 }

@@ -1,48 +1,42 @@
  
 package com.motiv.example
-import android.widget.ImageView
 import androidx.annotation.NonNull
-import androidx.databinding.BindingAdapter
-import androidx.room.*
+import androidx.fragment.app.*
 import com.google.gson.*
 import com.google.gson.annotations.*
 import com.google.gson.reflect.*
-import com.squareup.picasso.Picasso
+import dagger.*
+import dagger.android.*
+import dagger.android.support.*
+import io.realm.*
 import java.util.*
 import java.util.concurrent.*
-import kotlin.collections.List
-@Entity(tableName = "postslistresponse")
-public class PostsListResponse {
+import javax.inject.*
 
-    @NonNull
-    @PrimaryKey
+public open class PostsListResponse : RealmObject() {
 
-    private var id: String = UUID.randomUUID().toString()
-    @ColumnInfo(name = "metaId")@ForeignKey(entity = com.motiv.example.Meta::class, parentColumns = ["id"], childColumns = ["metaId"])
-    private
-    var metaId: String = ""
-    @Ignore
+    @NonNull private var id: String = UUID.randomUUID().toString()
+
     @SerializedName("result")
-    private var result: List<com.motiv.example.Post> = listOf()
-    @Ignore
+
+    private var result: RealmList<com.motiv.example.Post> = RealmList()
+
     @SerializedName("_meta")
+
     private var meta: com.motiv.example.Meta = com.motiv.example.Meta()
 
     fun getId(): String {
         return this.id
     } fun setId(id: String) {
         this.id = id
-    } fun getResult(): List<com.motiv.example.Post> {
+    } fun getResult(): RealmList<com.motiv.example.Post> {
         return this.result
-    } fun setResult(result: List<com.motiv.example.Post>) {
+    } fun setResult(result: RealmList<com.motiv.example.Post>) {
         this.result = result
     } fun getMeta(): com.motiv.example.Meta {
         return this.meta
     } fun setMeta(meta: com.motiv.example.Meta) {
         this.meta = meta
-    } @BindingAdapter("bind:imageUrl")
-    fun loadImage(view: ImageView, url: String) {
-        Picasso.with(view.getContext()).load(url).into(view)
     } companion object {
         val gson: Gson = Gson()
         fun fromJson(json: String): PostsListResponse {
@@ -60,5 +54,5 @@ public class PostsListResponse {
         fun fromJsonArray(json: String): Array<PostsListResponse> {
             return gson.fromJson(json, Array<PostsListResponse>::class.java)
         }
-    } public fun getMetaId(): String { return this.metaId; }; public fun setMetaId(metaId: String) { this.metaId = metaId; }
+    }
 }
