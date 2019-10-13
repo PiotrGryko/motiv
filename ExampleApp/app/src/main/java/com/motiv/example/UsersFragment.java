@@ -11,34 +11,22 @@ import androidx.fragment.app.*;
 import androidx.recyclerview.widget.*;
 import androidx.recyclerview.widget.RecyclerView;
 import com.motiv.example.dao.DaoRepository;
+import com.motiv.example.dao.DaoRepositoryFactory;
 import com.motiv.example.dao.LocalStorage;
-import com.motiv.example.databinding.UsersfragmentBinding;
-import dagger.*;
-import dagger.android.*;
-import dagger.android.support.*;
-import javax.inject.*;
 
 public class UsersFragment extends Fragment {
 
-    private UsersfragmentBinding usersfragmentBinding;
-    @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
     private PhotosPagerAdapter photosPagerAdapter;
     private ViewPagerFragmentsAdapter viewPagerFragmentsAdapter;
-    @Inject GoApi goApi;
-    @Inject AuthApi authApi;
-    @Inject DaoRepository daoRepository;
-    @Inject LocalStorage localStorage;
+    private GoApi goApi;
+    private AuthApi authApi;
+    private DaoRepository daoRepository;
+    private LocalStorage localStorage;
     private NavigationController navigationController;
     private LinearLayout linearlayout00;
     private RecyclerView recyclerview10;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        AndroidSupportInjection.inject(this);
-    }
 
     @Override
     public View onCreateView(
@@ -46,7 +34,7 @@ public class UsersFragment extends Fragment {
             @Nullable ViewGroup parent,
             @Nullable Bundle savedInstanceState) {
 
-        usersfragmentBinding = UsersfragmentBinding.inflate(inflater);
+        View v = inflater.inflate(R.layout.usersfragment, parent, false);
 
         usersListAdapter = new UsersListAdapter();
         postsAdapter = new PostsAdapter();
@@ -54,9 +42,13 @@ public class UsersFragment extends Fragment {
         viewPagerFragmentsAdapter =
                 new ViewPagerFragmentsAdapter(
                         UsersFragment.this.getActivity().getSupportFragmentManager());
+        daoRepository = DaoRepositoryFactory.getInstance(UsersFragment.this.getActivity());
+        localStorage = LocalStorage.getInstance(UsersFragment.this.getActivity());
         navigationController = new NavigationController(UsersFragment.this.getActivity());
-        linearlayout00 = usersfragmentBinding.linearlayout00;
-        recyclerview10 = usersfragmentBinding.recyclerview10;
+        goApi = GoApiFactory.getInstance(localStorage);
+        authApi = AuthApiFactory.getInstance(localStorage);
+        linearlayout00 = (LinearLayout) v.findViewById(R.id.linearlayout00);
+        recyclerview10 = (RecyclerView) v.findViewById(R.id.recyclerview10);
 
         recyclerview10.setLayoutManager(new LinearLayoutManager(UsersFragment.this.getActivity()));
 
@@ -93,6 +85,6 @@ public class UsersFragment extends Fragment {
                     }
                 });
 
-        return usersfragmentBinding.getRoot();
+        return v;
     }
 }

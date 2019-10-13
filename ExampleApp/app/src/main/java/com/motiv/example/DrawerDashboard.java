@@ -5,32 +5,24 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.*;
-import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
 import com.motiv.example.dao.DaoRepository;
+import com.motiv.example.dao.DaoRepositoryFactory;
 import com.motiv.example.dao.LocalStorage;
-import com.motiv.example.databinding.DrawerdashboardBinding;
-import dagger.*;
-import dagger.android.*;
-import dagger.android.support.*;
-import javax.inject.*;
+import com.squareup.picasso.Picasso;
 
-public class DrawerDashboard extends AppCompatActivity implements HasSupportFragmentInjector {
+public class DrawerDashboard extends AppCompatActivity {
 
-    private DrawerdashboardBinding drawerdashboardBinding;
-    @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     private com.motiv.example.User user;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
     private PhotosPagerAdapter photosPagerAdapter;
     private ViewPagerFragmentsAdapter viewPagerFragmentsAdapter;
-    @Inject GoApi goApi;
-    @Inject AuthApi authApi;
-    @Inject DaoRepository daoRepository;
-    @Inject LocalStorage localStorage;
+    private GoApi goApi;
+    private AuthApi authApi;
+    private DaoRepository daoRepository;
+    private LocalStorage localStorage;
     private NavigationController navigationController;
     private DrawerLayout drawerlayout00;
     private NavigationView navigationview11;
@@ -39,17 +31,10 @@ public class DrawerDashboard extends AppCompatActivity implements HasSupportFrag
     private TextView headertextview11;
 
     @Override
-    public AndroidInjector<Fragment> supportFragmentInjector() {
-
-        return dispatchingAndroidInjector;
-    }
-
-    @Override
     protected void onCreate(@Nullable android.os.Bundle savedInstanceState) {
 
-        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
-        drawerdashboardBinding = DataBindingUtil.setContentView(this, R.layout.drawerdashboard);
+        setContentView(R.layout.drawerdashboard);
 
         user = com.motiv.example.User.fromJson(getIntent().getStringExtra("user"));
 
@@ -58,9 +43,13 @@ public class DrawerDashboard extends AppCompatActivity implements HasSupportFrag
         photosPagerAdapter = new PhotosPagerAdapter();
         viewPagerFragmentsAdapter =
                 new ViewPagerFragmentsAdapter(DrawerDashboard.this.getSupportFragmentManager());
+        daoRepository = DaoRepositoryFactory.getInstance(DrawerDashboard.this);
+        localStorage = LocalStorage.getInstance(DrawerDashboard.this);
         navigationController = new NavigationController(DrawerDashboard.this);
-        drawerlayout00 = drawerdashboardBinding.drawerlayout00;
-        navigationview11 = drawerdashboardBinding.navigationview11;
+        goApi = GoApiFactory.getInstance(localStorage);
+        authApi = AuthApiFactory.getInstance(localStorage);
+        drawerlayout00 = (DrawerLayout) findViewById(R.id.drawerlayout00);
+        navigationview11 = (NavigationView) findViewById(R.id.navigationview11);
         headerlinearlayout00 =
                 (LinearLayout) navigationview11.getHeaderView(0).findViewById(R.id.linearlayout00);
         headerimageview10 =
@@ -69,7 +58,8 @@ public class DrawerDashboard extends AppCompatActivity implements HasSupportFrag
                 (TextView) navigationview11.getHeaderView(0).findViewById(R.id.textview11);
 
         headertextview11.setText(user.getFirst_name());
-        Glide.with(DrawerDashboard.this)
+
+        Picasso.with(DrawerDashboard.this)
                 .load(user.getLinks().getAvatar().getHref())
                 .into(headerimageview10);
         ;
