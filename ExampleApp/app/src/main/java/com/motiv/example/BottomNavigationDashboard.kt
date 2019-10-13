@@ -3,10 +3,12 @@ package com.motiv.example
 import android.os.Bundle
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.motiv.example.dao.DaoRepository
 import com.motiv.example.dao.LocalStorage
+import com.motiv.example.databinding.BottomnavigationdashboardBinding
 import dagger.*
 import dagger.android.*
 import dagger.android.support.*
@@ -14,6 +16,8 @@ import javax.inject.*
 import kotlinx.android.synthetic.main.bottomnavigationdashboard.*
 
 public class BottomNavigationDashboard : AppCompatActivity(), BottomNavigationDashboardContract.View, HasSupportFragmentInjector {
+
+    private lateinit var bottomnavigationdashboardBinding: BottomnavigationdashboardBinding
 
     @Inject
     lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
@@ -51,15 +55,15 @@ public class BottomNavigationDashboard : AppCompatActivity(), BottomNavigationDa
     } override fun onCreate(savedInstanceState: android.os.Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.bottomnavigationdashboard)
+        bottomnavigationdashboardBinding = DataBindingUtil.setContentView(this, R.layout.bottomnavigationdashboard)
 
         usersListAdapter = UsersListAdapter()
         postsAdapter = PostsAdapter()
         photosPagerAdapter = PhotosPagerAdapter()
         viewPagerFragmentsAdapter = ViewPagerFragmentsAdapter(this@BottomNavigationDashboard.getSupportFragmentManager())
         navigationController = NavigationController(this@BottomNavigationDashboard)
-        relativelayout00 = findViewById<RelativeLayout>(R.id.relativelayout00)
-        bottomnavigationview11 = findViewById<BottomNavigationView>(R.id.bottomnavigationview11)
+        relativelayout00 = bottomnavigationdashboardBinding.relativelayout00
+        bottomnavigationview11 = bottomnavigationdashboardBinding.bottomnavigationview11
 
         presenter = BottomNavigationDashboardPresenter(this@BottomNavigationDashboard, goApi, authApi, daoRepository, localStorage)
 
