@@ -2,12 +2,10 @@ package com.motiv.example;
 
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import androidx.fragment.app.*;
 import androidx.recyclerview.widget.*;
 import com.bumptech.glide.Glide;
+import com.motiv.example.databinding.UserslistadapterBinding;
 import dagger.*;
 import dagger.android.*;
 import dagger.android.support.*;
@@ -28,15 +26,11 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.Adap
 
     public class AdapterViewHolder extends RecyclerView.ViewHolder {
 
-        LinearLayout linearlayout00;
-        ImageView imageview10;
-        TextView textview11;
+        private UserslistadapterBinding binding;
 
-        public AdapterViewHolder(View itemView) {
-            super(itemView);
-            linearlayout00 = (LinearLayout) itemView.findViewById(R.id.linearlayout00);
-            imageview10 = (ImageView) itemView.findViewById(R.id.imageview10);
-            textview11 = (TextView) itemView.findViewById(R.id.textview11);
+        public AdapterViewHolder(UserslistadapterBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 
@@ -58,10 +52,9 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.Adap
 
     @Override
     public AdapterViewHolder onCreateViewHolder(android.view.ViewGroup parent, int viewType) {
-
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View row = inflater.inflate(R.layout.userslistadapter, parent, false);
-        return new AdapterViewHolder(row);
+        UserslistadapterBinding binding = UserslistadapterBinding.inflate(inflater);
+        return new AdapterViewHolder(binding);
     }
 
     @Override
@@ -76,10 +69,10 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.Adap
                     }
                 });
         User user = data.get(position);
-        viewHolder.textview11.setText(user.getFirst_name());
+        viewHolder.binding.textview11.setText(user.getFirst_name());
         Glide.with(viewHolder.itemView.getContext())
                 .load(user.getLinks().getAvatar().getHref())
-                .into(viewHolder.imageview10);
+                .into(viewHolder.binding.imageview10);
         ;
     }
 

@@ -1,7 +1,10 @@
 package com.motiv.example;
 
+import android.widget.ImageView;
 import androidx.annotation.NonNull;
+import androidx.databinding.BindingAdapter;
 import androidx.fragment.app.*;
+import com.bumptech.glide.Glide;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 import com.google.gson.reflect.*;
@@ -37,6 +40,11 @@ public class Link extends RealmObject {
 
     public void setHref(java.lang.String href) {
         this.href = href;
+    }
+
+    @BindingAdapter({"bind:imageUrl"})
+    public static void loadImage(ImageView view, java.lang.String url) {
+        Glide.with(view.getContext()).load(url).into(view);
     }
 
     public static Link fromJson(String json) {

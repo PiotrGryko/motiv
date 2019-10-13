@@ -10,6 +10,7 @@ import androidx.fragment.app.*;
 import androidx.viewpager.widget.ViewPager;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.LocalStorage;
+import com.motiv.example.databinding.PhotosfragmentBinding;
 import dagger.*;
 import dagger.android.*;
 import dagger.android.support.*;
@@ -17,6 +18,7 @@ import javax.inject.*;
 
 public class PhotosFragment extends Fragment implements PhotosFragmentContract.View {
 
+    private PhotosfragmentBinding photosfragmentBinding;
     @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     private PhotosFragmentContract.Presenter presenter;
     private UsersListAdapter usersListAdapter;
@@ -37,7 +39,7 @@ public class PhotosFragment extends Fragment implements PhotosFragmentContract.V
             @Nullable ViewGroup parent,
             final @Nullable Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.photosfragment, parent, false);
+        photosfragmentBinding = PhotosfragmentBinding.inflate(inflater);
 
         usersListAdapter = new UsersListAdapter();
         postsAdapter = new PostsAdapter();
@@ -46,8 +48,8 @@ public class PhotosFragment extends Fragment implements PhotosFragmentContract.V
                 new ViewPagerFragmentsAdapter(
                         PhotosFragment.this.getActivity().getSupportFragmentManager());
         navigationController = new NavigationController(PhotosFragment.this.getActivity());
-        linearlayout00 = (LinearLayout) v.findViewById(R.id.linearlayout00);
-        viewpager10 = (ViewPager) v.findViewById(R.id.viewpager10);
+        linearlayout00 = photosfragmentBinding.linearlayout00;
+        viewpager10 = photosfragmentBinding.viewpager10;
         presenter =
                 new PhotosFragmentPresenter(
                         PhotosFragment.this, goApi, authApi, daoRepository, localStorage);
@@ -55,7 +57,7 @@ public class PhotosFragment extends Fragment implements PhotosFragmentContract.V
         viewpager10.setAdapter(photosPagerAdapter);
         presenter.goApigetPhotos();
 
-        return v;
+        return photosfragmentBinding.getRoot();
     }
 
     @Override

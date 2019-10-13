@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import androidx.fragment.app.*;
 import androidx.viewpager.widget.PagerAdapter;
 import com.bumptech.glide.Glide;
+import com.motiv.example.databinding.PhotospageradapterBinding;
 import dagger.*;
 import dagger.android.*;
 import dagger.android.support.*;
@@ -45,14 +46,12 @@ public class PhotosPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         LayoutInflater inflater = LayoutInflater.from(container.getContext());
-        View v = inflater.inflate(R.layout.photospageradapter, container, false);
-        linearlayout00 = (LinearLayout) v.findViewById(R.id.linearlayout00);
-        imageview10 = (ImageView) v.findViewById(R.id.imageview10);
+        PhotospageradapterBinding binding = PhotospageradapterBinding.inflate(inflater);
         Photo photo = data.get(position);
-        Glide.with(container.getContext()).load(photo.getUrl()).into(imageview10);
+        Glide.with(container.getContext()).load(photo.getUrl()).into(binding.imageview10);
         ;
 
-        container.addView(v);
-        return v;
+        container.addView(binding.getRoot());
+        return binding.getRoot();
     }
 }

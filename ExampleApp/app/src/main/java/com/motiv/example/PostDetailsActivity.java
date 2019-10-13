@@ -4,9 +4,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.*;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.LocalStorage;
+import com.motiv.example.databinding.PostdetailsactivityBinding;
 import dagger.*;
 import dagger.android.*;
 import dagger.android.support.*;
@@ -15,6 +17,7 @@ import javax.inject.*;
 public class PostDetailsActivity extends AppCompatActivity
         implements PostDetailsActivityContract.View, HasSupportFragmentInjector {
 
+    private PostdetailsactivityBinding postdetailsactivityBinding;
     @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     private java.lang.String postId;
     private PostDetailsActivityContract.Presenter presenter;
@@ -42,7 +45,8 @@ public class PostDetailsActivity extends AppCompatActivity
 
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.postdetailsactivity);
+        postdetailsactivityBinding =
+                DataBindingUtil.setContentView(this, R.layout.postdetailsactivity);
 
         String postId = getIntent().getStringExtra("postId");
 
@@ -52,9 +56,9 @@ public class PostDetailsActivity extends AppCompatActivity
         viewPagerFragmentsAdapter =
                 new ViewPagerFragmentsAdapter(PostDetailsActivity.this.getSupportFragmentManager());
         navigationController = new NavigationController(PostDetailsActivity.this);
-        linearlayout00 = (LinearLayout) findViewById(R.id.linearlayout00);
-        textview10 = (TextView) findViewById(R.id.textview10);
-        textview11 = (TextView) findViewById(R.id.textview11);
+        linearlayout00 = postdetailsactivityBinding.linearlayout00;
+        textview10 = postdetailsactivityBinding.textview10;
+        textview11 = postdetailsactivityBinding.textview11;
 
         presenter =
                 new PostDetailsActivityPresenter(

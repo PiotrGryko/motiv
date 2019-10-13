@@ -5,12 +5,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.*;
 import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.LocalStorage;
+import com.motiv.example.databinding.DrawerdashboardBinding;
 import dagger.*;
 import dagger.android.*;
 import dagger.android.support.*;
@@ -19,6 +21,7 @@ import javax.inject.*;
 public class DrawerDashboard extends AppCompatActivity
         implements DrawerDashboardContract.View, HasSupportFragmentInjector {
 
+    private DrawerdashboardBinding drawerdashboardBinding;
     @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     private com.motiv.example.User user;
     private DrawerDashboardContract.Presenter presenter;
@@ -48,7 +51,7 @@ public class DrawerDashboard extends AppCompatActivity
 
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.drawerdashboard);
+        drawerdashboardBinding = DataBindingUtil.setContentView(this, R.layout.drawerdashboard);
 
         user = com.motiv.example.User.fromJson(getIntent().getStringExtra("user"));
 
@@ -58,8 +61,8 @@ public class DrawerDashboard extends AppCompatActivity
         viewPagerFragmentsAdapter =
                 new ViewPagerFragmentsAdapter(DrawerDashboard.this.getSupportFragmentManager());
         navigationController = new NavigationController(DrawerDashboard.this);
-        drawerlayout00 = (DrawerLayout) findViewById(R.id.drawerlayout00);
-        navigationview11 = (NavigationView) findViewById(R.id.navigationview11);
+        drawerlayout00 = drawerdashboardBinding.drawerlayout00;
+        navigationview11 = drawerdashboardBinding.navigationview11;
         headerlinearlayout00 =
                 (LinearLayout) navigationview11.getHeaderView(0).findViewById(R.id.linearlayout00);
         headerimageview10 =
