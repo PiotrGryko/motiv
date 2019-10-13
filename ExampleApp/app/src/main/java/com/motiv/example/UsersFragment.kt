@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.motiv.example.dao.DaoRepository
 import com.motiv.example.dao.LocalStorage
+import com.motiv.example.databinding.UsersfragmentBinding
 import dagger.*
 import dagger.android.*
 import dagger.android.support.*
@@ -19,6 +20,8 @@ import kotlin.collections.List
 import kotlinx.android.synthetic.main.usersfragment.*
 
 public class UsersFragment : Fragment(), UsersFragmentContract.View {
+
+    private lateinit var usersfragmentBinding: UsersfragmentBinding
 
     @Inject
     lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
@@ -52,15 +55,15 @@ public class UsersFragment : Fragment(), UsersFragmentContract.View {
     private lateinit var recyclerview10: RecyclerView
 
     override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?, savedInstanceState: Bundle?): View {
-        val v: View = inflater.inflate(R.layout.usersfragment, parent, false)
+        usersfragmentBinding = UsersfragmentBinding.inflate(inflater)
 
         usersListAdapter = UsersListAdapter()
         postsAdapter = PostsAdapter()
         photosPagerAdapter = PhotosPagerAdapter()
         viewPagerFragmentsAdapter = ViewPagerFragmentsAdapter(activity!!.getSupportFragmentManager())
         navigationController = NavigationController(activity!!)
-        linearlayout00 = v.findViewById<LinearLayout>(R.id.linearlayout00)
-        recyclerview10 = v.findViewById<RecyclerView>(R.id.recyclerview10)
+        linearlayout00 = usersfragmentBinding.linearlayout00
+        recyclerview10 = usersfragmentBinding.recyclerview10
         presenter = UsersFragmentPresenter(this@UsersFragment, goApi, authApi, daoRepository, localStorage)
 
         recyclerview10?.setLayoutManager(LinearLayoutManager(activity!!))
@@ -73,7 +76,7 @@ public class UsersFragment : Fragment(), UsersFragmentContract.View {
             } 
         })
 
-        return v
+        return usersfragmentBinding.getRoot()
     } override fun usersListAdaptersetData(arg0: List<com.motiv.example.User>) {
         usersListAdapter.setData(arg0)
     } override fun showToast(arg0: String) {
