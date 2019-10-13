@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.*;
 import androidx.recyclerview.widget.RecyclerView;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.LocalStorage;
+import com.motiv.example.databinding.UsersfragmentBinding;
 import dagger.*;
 import dagger.android.*;
 import dagger.android.support.*;
@@ -19,6 +20,7 @@ import javax.inject.*;
 
 public class UsersFragment extends Fragment implements UsersFragmentContract.View {
 
+    private UsersfragmentBinding usersfragmentBinding;
     @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     private UsersFragmentContract.Presenter presenter;
     private UsersListAdapter usersListAdapter;
@@ -39,7 +41,7 @@ public class UsersFragment extends Fragment implements UsersFragmentContract.Vie
             @Nullable ViewGroup parent,
             final @Nullable Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.usersfragment, parent, false);
+        usersfragmentBinding = UsersfragmentBinding.inflate(inflater);
 
         usersListAdapter = new UsersListAdapter();
         postsAdapter = new PostsAdapter();
@@ -48,8 +50,8 @@ public class UsersFragment extends Fragment implements UsersFragmentContract.Vie
                 new ViewPagerFragmentsAdapter(
                         UsersFragment.this.getActivity().getSupportFragmentManager());
         navigationController = new NavigationController(UsersFragment.this.getActivity());
-        linearlayout00 = (LinearLayout) v.findViewById(R.id.linearlayout00);
-        recyclerview10 = (RecyclerView) v.findViewById(R.id.recyclerview10);
+        linearlayout00 = usersfragmentBinding.linearlayout00;
+        recyclerview10 = usersfragmentBinding.recyclerview10;
         presenter =
                 new UsersFragmentPresenter(
                         UsersFragment.this, goApi, authApi, daoRepository, localStorage);
@@ -67,7 +69,7 @@ public class UsersFragment extends Fragment implements UsersFragmentContract.Vie
                     }
                 });
 
-        return v;
+        return usersfragmentBinding.getRoot();
     }
 
     @Override
