@@ -1,24 +1,37 @@
 package com.motiv.example;
 
-import android.widget.ImageView;
 import androidx.annotation.NonNull;
-import androidx.databinding.BindingAdapter;
+import androidx.fragment.app.*;
+import androidx.room.*;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 import com.google.gson.reflect.*;
-import com.squareup.picasso.Picasso;
-import io.realm.*;
+import dagger.*;
+import dagger.android.*;
+import dagger.android.support.*;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.inject.*;
 
-public class PhotosListResponse extends RealmObject {
+@Entity(tableName = "photoslistresponse")
+public class PhotosListResponse {
 
     private static final Gson gson = new Gson();
-    @NonNull private java.lang.String id = UUID.randomUUID().toString();
+    @NonNull @PrimaryKey private java.lang.String id = UUID.randomUUID().toString();
 
+    @ColumnInfo(name = "metaId")
+    @ForeignKey(
+        entity = com.motiv.example.Meta.class,
+        parentColumns = "id",
+        childColumns = "metaId"
+    )
+    private java.lang.String metaId;
+
+    @Ignore
     @SerializedName("result")
-    private RealmList<com.motiv.example.Photo> result;
+    private java.util.List<com.motiv.example.Photo> result;
 
+    @Ignore
     @SerializedName("_meta")
     private com.motiv.example.Meta meta;
 
@@ -31,12 +44,12 @@ public class PhotosListResponse extends RealmObject {
         this.id = id;
     }
 
-    public RealmList<com.motiv.example.Photo> getResult() {
+    public java.util.List<com.motiv.example.Photo> getResult() {
 
         return this.result;
     }
 
-    public void setResult(RealmList<com.motiv.example.Photo> result) {
+    public void setResult(java.util.List<com.motiv.example.Photo> result) {
         this.result = result;
     }
 
@@ -47,12 +60,6 @@ public class PhotosListResponse extends RealmObject {
 
     public void setMeta(com.motiv.example.Meta meta) {
         this.meta = meta;
-    }
-
-    @BindingAdapter({"bind:imageUrl"})
-    public static void loadImage(ImageView view, java.lang.String url) {
-
-        Picasso.with(view.getContext()).load(url).into(view);
     }
 
     public static PhotosListResponse fromJson(String json) {
@@ -69,5 +76,13 @@ public class PhotosListResponse extends RealmObject {
 
     public static PhotosListResponse[] fromJsonArray(String array) {
         return gson.fromJson(array, PhotosListResponse[].class);
+    }
+
+    public java.lang.String getMetaId() {
+        return this.metaId;
+    };
+
+    public void setMetaId(java.lang.String metaId) {
+        this.metaId = metaId;
     }
 }

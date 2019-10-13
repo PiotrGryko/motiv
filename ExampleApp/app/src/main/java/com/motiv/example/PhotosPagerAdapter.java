@@ -5,10 +5,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import androidx.fragment.app.*;
 import androidx.viewpager.widget.PagerAdapter;
-import com.motiv.example.databinding.PhotospageradapterBinding;
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+import dagger.*;
+import dagger.android.*;
+import dagger.android.support.*;
 import java.util.ArrayList;
+import javax.inject.*;
 
 public class PhotosPagerAdapter extends PagerAdapter {
 
@@ -41,13 +45,14 @@ public class PhotosPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         LayoutInflater inflater = LayoutInflater.from(container.getContext());
-        PhotospageradapterBinding binding = PhotospageradapterBinding.inflate(inflater);
+        View v = inflater.inflate(R.layout.photospageradapter, container, false);
+        linearlayout00 = (LinearLayout) v.findViewById(R.id.linearlayout00);
+        imageview10 = (ImageView) v.findViewById(R.id.imageview10);
         Photo photo = data.get(position);
-
-        Picasso.with(container.getContext()).load(photo.getUrl()).into(binding.imageview10);
+        Glide.with(container.getContext()).load(photo.getUrl()).into(imageview10);
         ;
 
-        container.addView(binding.getRoot());
-        return binding.getRoot();
+        container.addView(v);
+        return v;
     }
 }
