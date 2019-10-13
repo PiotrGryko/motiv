@@ -5,30 +5,21 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.*;
-import com.bumptech.glide.Glide;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.LocalStorage;
-import com.motiv.example.databinding.UseractivityBinding;
-import dagger.*;
-import dagger.android.*;
-import dagger.android.support.*;
-import javax.inject.*;
+import com.squareup.picasso.Picasso;
 
-public class UserActivity extends AppCompatActivity implements HasSupportFragmentInjector {
+public class UserActivity extends AppCompatActivity {
 
-    private UseractivityBinding useractivityBinding;
-    @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     private com.motiv.example.User userArgument;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
     private PhotosPagerAdapter photosPagerAdapter;
     private ViewPagerFragmentsAdapter viewPagerFragmentsAdapter;
-    @Inject GoApi goApi;
-    @Inject AuthApi authApi;
-    @Inject DaoRepository daoRepository;
-    @Inject LocalStorage localStorage;
+    private GoApi goApi;
+    private AuthApi authApi;
+    private DaoRepository daoRepository = DaoRepositoryFactory.getInstance(UserActivity.this);
+    private LocalStorage localStorage;
     private NavigationController navigationController;
     private LinearLayout linearlayout00;
     private ImageView imageview10;
@@ -36,17 +27,10 @@ public class UserActivity extends AppCompatActivity implements HasSupportFragmen
     private TextView textview12;
 
     @Override
-    public AndroidInjector<Fragment> supportFragmentInjector() {
-
-        return dispatchingAndroidInjector;
-    }
-
-    @Override
     protected void onCreate(@Nullable android.os.Bundle savedInstanceState) {
 
-        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
-        useractivityBinding = DataBindingUtil.setContentView(this, R.layout.useractivity);
+        setContentView(R.layout.useractivity);
 
         userArgument = com.motiv.example.User.fromJson(getIntent().getStringExtra("userArgument"));
 
@@ -55,13 +39,16 @@ public class UserActivity extends AppCompatActivity implements HasSupportFragmen
         photosPagerAdapter = new PhotosPagerAdapter();
         viewPagerFragmentsAdapter =
                 new ViewPagerFragmentsAdapter(UserActivity.this.getSupportFragmentManager());
+        localStorage = LocalStorage.getInstance(UserActivity.this);
         navigationController = new NavigationController(UserActivity.this);
-        linearlayout00 = useractivityBinding.linearlayout00;
-        imageview10 = useractivityBinding.imageview10;
-        textview11 = useractivityBinding.textview11;
-        textview12 = useractivityBinding.textview12;
+        goApi = GoApiFactory.getInstance(localStorage);
+        authApi = AuthApiFactory.getInstance(localStorage);
+        linearlayout00 = (LinearLayout) findViewById(R.id.linearlayout00);
+        imageview10 = (ImageView) findViewById(R.id.imageview10);
+        textview11 = (TextView) findViewById(R.id.textview11);
+        textview12 = (TextView) findViewById(R.id.textview12);
 
-        Glide.with(UserActivity.this)
+        Picasso.with(UserActivity.this)
                 .load(userArgument.getLinks().getAvatar().getHref())
                 .into(imageview10);
         ;

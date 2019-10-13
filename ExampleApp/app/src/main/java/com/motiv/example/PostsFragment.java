@@ -11,33 +11,21 @@ import androidx.recyclerview.widget.*;
 import androidx.recyclerview.widget.RecyclerView;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.LocalStorage;
-import com.motiv.example.databinding.PostsfragmentBinding;
-import dagger.*;
-import dagger.android.*;
-import dagger.android.support.*;
-import javax.inject.*;
 
 public class PostsFragment extends Fragment {
 
-    private PostsfragmentBinding postsfragmentBinding;
-    @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
     private PhotosPagerAdapter photosPagerAdapter;
     private ViewPagerFragmentsAdapter viewPagerFragmentsAdapter;
-    @Inject GoApi goApi;
-    @Inject AuthApi authApi;
-    @Inject DaoRepository daoRepository;
-    @Inject LocalStorage localStorage;
+    private GoApi goApi;
+    private AuthApi authApi;
+    private DaoRepository daoRepository =
+            DaoRepositoryFactory.getInstance(PostsFragment.this.getActivity());
+    private LocalStorage localStorage;
     private NavigationController navigationController;
     private LinearLayout linearlayout00;
     private RecyclerView recyclerview10;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        AndroidSupportInjection.inject(this);
-    }
 
     @Override
     public View onCreateView(
@@ -45,7 +33,7 @@ public class PostsFragment extends Fragment {
             @Nullable ViewGroup parent,
             @Nullable Bundle savedInstanceState) {
 
-        postsfragmentBinding = PostsfragmentBinding.inflate(inflater);
+        View v = inflater.inflate(R.layout.postsfragment, parent, false);
 
         usersListAdapter = new UsersListAdapter();
         postsAdapter = new PostsAdapter();
@@ -53,9 +41,12 @@ public class PostsFragment extends Fragment {
         viewPagerFragmentsAdapter =
                 new ViewPagerFragmentsAdapter(
                         PostsFragment.this.getActivity().getSupportFragmentManager());
+        localStorage = LocalStorage.getInstance(PostsFragment.this.getActivity());
         navigationController = new NavigationController(PostsFragment.this.getActivity());
-        linearlayout00 = postsfragmentBinding.linearlayout00;
-        recyclerview10 = postsfragmentBinding.recyclerview10;
+        goApi = GoApiFactory.getInstance(localStorage);
+        authApi = AuthApiFactory.getInstance(localStorage);
+        linearlayout00 = (LinearLayout) v.findViewById(R.id.linearlayout00);
+        recyclerview10 = (RecyclerView) v.findViewById(R.id.recyclerview10);
 
         recyclerview10.setLayoutManager(new LinearLayoutManager(PostsFragment.this.getActivity()));
 
@@ -91,6 +82,6 @@ public class PostsFragment extends Fragment {
                     }
                 });
 
-        return postsfragmentBinding.getRoot();
+        return v;
     }
 }
