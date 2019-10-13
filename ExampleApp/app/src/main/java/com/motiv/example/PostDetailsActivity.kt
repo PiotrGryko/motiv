@@ -4,11 +4,15 @@ import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import com.motiv.example.dao.DaoRepository
 import com.motiv.example.dao.LocalStorage
+import com.motiv.example.databinding.PostdetailsactivityBinding
 import kotlinx.android.synthetic.main.postdetailsactivity.*
 
 public class PostDetailsActivity : AppCompatActivity() {
+
+    private lateinit var postdetailsactivityBinding: PostdetailsactivityBinding
 
     private lateinit var postId: String
 
@@ -38,7 +42,7 @@ public class PostDetailsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.postdetailsactivity)
+        postdetailsactivityBinding = DataBindingUtil.setContentView(this, R.layout.postdetailsactivity)
 
         val postId = getIntent().getStringExtra("postId")
 
@@ -50,9 +54,9 @@ public class PostDetailsActivity : AppCompatActivity() {
         navigationController = NavigationController(this@PostDetailsActivity)
         goApi = GoApiFactory.getInstance(localStorage)
         authApi = AuthApiFactory.getInstance(localStorage)
-        linearlayout00 = findViewById<LinearLayout>(R.id.linearlayout00)
-        textview10 = findViewById<TextView>(R.id.textview10)
-        textview11 = findViewById<TextView>(R.id.textview11)
+        linearlayout00 = postdetailsactivityBinding.linearlayout00
+        textview10 = postdetailsactivityBinding.textview10
+        textview11 = postdetailsactivityBinding.textview11
 
         daoRepository.loadPost(
             postId,

@@ -1,9 +1,12 @@
  
 package com.motiv.example
+import android.widget.ImageView
 import androidx.annotation.NonNull
+import androidx.databinding.BindingAdapter
 import com.google.gson.*
 import com.google.gson.annotations.*
 import com.google.gson.reflect.*
+import com.squareup.picasso.Picasso
 import io.realm.*
 import java.util.*
 import java.util.concurrent.*
@@ -96,6 +99,9 @@ public open class User : RealmObject() {
         return this.status
     } fun setStatus(status: String) {
         this.status = status
+    } @BindingAdapter("bind:imageUrl")
+    fun loadImage(view: ImageView, url: String) {
+        Picasso.with(view.getContext()).load(url).into(view)
     } companion object {
         val gson: Gson = Gson()
         fun fromJson(json: String): User {
