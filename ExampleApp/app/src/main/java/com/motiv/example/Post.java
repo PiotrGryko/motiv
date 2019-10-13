@@ -1,10 +1,13 @@
 package com.motiv.example;
 
+import android.widget.ImageView;
 import androidx.annotation.NonNull;
+import androidx.databinding.BindingAdapter;
 import androidx.room.*;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 import com.google.gson.reflect.*;
+import com.squareup.picasso.Picasso;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -89,6 +92,12 @@ public class Post {
 
     public void setBody(java.lang.String body) {
         this.body = body;
+    }
+
+    @BindingAdapter({"bind:imageUrl"})
+    public static void loadImage(ImageView view, java.lang.String url) {
+
+        Picasso.with(view.getContext()).load(url).into(view);
     }
 
     public static Post fromJson(String json) {
