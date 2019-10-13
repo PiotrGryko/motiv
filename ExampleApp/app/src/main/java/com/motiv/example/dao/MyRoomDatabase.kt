@@ -1,6 +1,5 @@
  
 package com.motiv.example.dao
-import androidx.fragment.app.*
 import androidx.room.*
 import com.motiv.example.AuthToken
 import com.motiv.example.Link
@@ -13,10 +12,6 @@ import com.motiv.example.PostsListResponse
 import com.motiv.example.User
 import com.motiv.example.UserResponse
 import com.motiv.example.UsersResponse
-import dagger.*
-import dagger.android.*
-import dagger.android.support.*
-import javax.inject.*
 @TypeConverters(MyTypeConverter::class)
 @Database(entities = [User::class, UserResponse::class, AuthToken::class, PhotosListResponse::class, PostsListResponse::class, Meta::class, Photo::class, Post::class, Link::class, Links::class, UsersResponse::class], version = 1)
 public abstract class MyRoomDatabase : RoomDatabase() {

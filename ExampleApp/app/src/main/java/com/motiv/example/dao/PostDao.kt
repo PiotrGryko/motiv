@@ -1,13 +1,8 @@
  
 package com.motiv.example.dao
-import androidx.fragment.app.*
 import androidx.room.*
 import com.motiv.example.Post
 import com.motiv.example.PostWithReferences
-import dagger.*
-import dagger.android.*
-import dagger.android.support.*
-import javax.inject.*
 import kotlin.collections.List
 @Dao
 public interface PostDao {
