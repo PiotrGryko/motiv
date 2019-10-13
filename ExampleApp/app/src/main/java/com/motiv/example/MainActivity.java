@@ -6,11 +6,14 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.LocalStorage;
+import com.motiv.example.databinding.MainactivityBinding;
 
 public class MainActivity extends AppCompatActivity implements MainActivityContract.View {
 
+    private MainactivityBinding mainactivityBinding;
     private MainActivityContract.Presenter presenter;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
@@ -29,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     protected void onCreate(@Nullable android.os.Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.mainactivity);
+        mainactivityBinding = DataBindingUtil.setContentView(this, R.layout.mainactivity);
 
         usersListAdapter = new UsersListAdapter();
         postsAdapter = new PostsAdapter();
@@ -40,9 +43,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
         navigationController = new NavigationController(MainActivity.this);
         goApi = GoApiFactory.getInstance(localStorage);
         authApi = AuthApiFactory.getInstance(localStorage);
-        linearlayout00 = (LinearLayout) findViewById(R.id.linearlayout00);
-        edittext10 = (EditText) findViewById(R.id.edittext10);
-        button11 = (Button) findViewById(R.id.button11);
+        linearlayout00 = mainactivityBinding.linearlayout00;
+        edittext10 = mainactivityBinding.edittext10;
+        button11 = mainactivityBinding.button11;
 
         presenter =
                 new MainActivityPresenter(

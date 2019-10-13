@@ -11,9 +11,11 @@ import androidx.recyclerview.widget.*;
 import androidx.recyclerview.widget.RecyclerView;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.LocalStorage;
+import com.motiv.example.databinding.PostsfragmentBinding;
 
 public class PostsFragment extends Fragment implements PostsFragmentContract.View {
 
+    private PostsfragmentBinding postsfragmentBinding;
     private PostsFragmentContract.Presenter presenter;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
@@ -34,7 +36,7 @@ public class PostsFragment extends Fragment implements PostsFragmentContract.Vie
             @Nullable ViewGroup parent,
             final @Nullable Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.postsfragment, parent, false);
+        postsfragmentBinding = PostsfragmentBinding.inflate(inflater);
 
         usersListAdapter = new UsersListAdapter();
         postsAdapter = new PostsAdapter();
@@ -46,8 +48,8 @@ public class PostsFragment extends Fragment implements PostsFragmentContract.Vie
         navigationController = new NavigationController(PostsFragment.this.getActivity());
         goApi = GoApiFactory.getInstance(localStorage);
         authApi = AuthApiFactory.getInstance(localStorage);
-        linearlayout00 = (LinearLayout) v.findViewById(R.id.linearlayout00);
-        recyclerview10 = (RecyclerView) v.findViewById(R.id.recyclerview10);
+        linearlayout00 = postsfragmentBinding.linearlayout00;
+        recyclerview10 = postsfragmentBinding.recyclerview10;
         presenter =
                 new PostsFragmentPresenter(
                         PostsFragment.this, goApi, authApi, daoRepository, localStorage);
@@ -65,7 +67,7 @@ public class PostsFragment extends Fragment implements PostsFragmentContract.Vie
                     }
                 });
 
-        return v;
+        return postsfragmentBinding.getRoot();
     }
 
     @Override
