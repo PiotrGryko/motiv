@@ -9,10 +9,13 @@ import androidx.fragment.app.*
 import androidx.viewpager.widget.ViewPager
 import com.motiv.example.dao.DaoRepository
 import com.motiv.example.dao.LocalStorage
+import com.motiv.example.databinding.PhotosfragmentBinding
 import kotlin.collections.List
 import kotlinx.android.synthetic.main.photosfragment.*
 
 public class PhotosFragment : Fragment(), PhotosFragmentContract.View {
+
+    private lateinit var photosfragmentBinding: PhotosfragmentBinding
 
     private lateinit var presenter: PhotosFragmentContract.Presenter
 
@@ -39,7 +42,7 @@ public class PhotosFragment : Fragment(), PhotosFragmentContract.View {
     private lateinit var viewpager10: ViewPager
 
     override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?, savedInstanceState: Bundle?): View {
-        val v: View = inflater.inflate(R.layout.photosfragment, parent, false)
+        photosfragmentBinding = PhotosfragmentBinding.inflate(inflater)
 
         usersListAdapter = UsersListAdapter()
         postsAdapter = PostsAdapter()
@@ -49,14 +52,14 @@ public class PhotosFragment : Fragment(), PhotosFragmentContract.View {
         navigationController = NavigationController(activity!!)
         goApi = GoApiFactory.getInstance(localStorage)
         authApi = AuthApiFactory.getInstance(localStorage)
-        linearlayout00 = v.findViewById<LinearLayout>(R.id.linearlayout00)
-        viewpager10 = v.findViewById<ViewPager>(R.id.viewpager10)
+        linearlayout00 = photosfragmentBinding.linearlayout00
+        viewpager10 = photosfragmentBinding.viewpager10
         presenter = PhotosFragmentPresenter(this@PhotosFragment, goApi, authApi, daoRepository, localStorage)
 
         viewpager10.setAdapter(photosPagerAdapter)
         presenter.goApigetPhotos()
 
-        return v
+        return photosfragmentBinding.getRoot()
     } override fun photosPagerAdaptersetData(arg0: List<com.motiv.example.Photo>) {
         photosPagerAdapter.setData(arg0)
     }

@@ -5,12 +5,16 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import com.motiv.example.dao.DaoRepository
 import com.motiv.example.dao.LocalStorage
+import com.motiv.example.databinding.UseractivityBinding
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.useractivity.*
 
 public class UserActivity : AppCompatActivity(), UserActivityContract.View {
+
+    private lateinit var useractivityBinding: UseractivityBinding
 
     private lateinit var userArgument: com.motiv.example.User
 
@@ -44,7 +48,7 @@ public class UserActivity : AppCompatActivity(), UserActivityContract.View {
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.useractivity)
+        useractivityBinding = DataBindingUtil.setContentView(this, R.layout.useractivity)
 
         userArgument = com.motiv.example.User.fromJson(getIntent().getStringExtra("userArgument"))
 
@@ -56,10 +60,10 @@ public class UserActivity : AppCompatActivity(), UserActivityContract.View {
         navigationController = NavigationController(this@UserActivity)
         goApi = GoApiFactory.getInstance(localStorage)
         authApi = AuthApiFactory.getInstance(localStorage)
-        linearlayout00 = findViewById<LinearLayout>(R.id.linearlayout00)
-        imageview10 = findViewById<ImageView>(R.id.imageview10)
-        textview11 = findViewById<TextView>(R.id.textview11)
-        textview12 = findViewById<TextView>(R.id.textview12)
+        linearlayout00 = useractivityBinding.linearlayout00
+        imageview10 = useractivityBinding.imageview10
+        textview11 = useractivityBinding.textview11
+        textview12 = useractivityBinding.textview12
 
         presenter = UserActivityPresenter(this@UserActivity, goApi, authApi, daoRepository, localStorage)
 

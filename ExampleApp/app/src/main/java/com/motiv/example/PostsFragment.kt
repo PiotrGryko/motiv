@@ -10,10 +10,13 @@ import androidx.recyclerview.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.motiv.example.dao.DaoRepository
 import com.motiv.example.dao.LocalStorage
+import com.motiv.example.databinding.PostsfragmentBinding
 import kotlin.collections.List
 import kotlinx.android.synthetic.main.postsfragment.*
 
 public class PostsFragment : Fragment(), PostsFragmentContract.View {
+
+    private lateinit var postsfragmentBinding: PostsfragmentBinding
 
     private lateinit var presenter: PostsFragmentContract.Presenter
 
@@ -40,7 +43,7 @@ public class PostsFragment : Fragment(), PostsFragmentContract.View {
     private lateinit var recyclerview10: RecyclerView
 
     override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?, savedInstanceState: Bundle?): View {
-        val v: View = inflater.inflate(R.layout.postsfragment, parent, false)
+        postsfragmentBinding = PostsfragmentBinding.inflate(inflater)
 
         usersListAdapter = UsersListAdapter()
         postsAdapter = PostsAdapter()
@@ -50,8 +53,8 @@ public class PostsFragment : Fragment(), PostsFragmentContract.View {
         navigationController = NavigationController(activity!!)
         goApi = GoApiFactory.getInstance(localStorage)
         authApi = AuthApiFactory.getInstance(localStorage)
-        linearlayout00 = v.findViewById<LinearLayout>(R.id.linearlayout00)
-        recyclerview10 = v.findViewById<RecyclerView>(R.id.recyclerview10)
+        linearlayout00 = postsfragmentBinding.linearlayout00
+        recyclerview10 = postsfragmentBinding.recyclerview10
         presenter = PostsFragmentPresenter(this@PostsFragment, goApi, authApi, daoRepository, localStorage)
 
         recyclerview10?.setLayoutManager(LinearLayoutManager(activity!!))
@@ -64,7 +67,7 @@ public class PostsFragment : Fragment(), PostsFragmentContract.View {
             } 
         })
 
-        return v
+        return postsfragmentBinding.getRoot()
     } override fun postsAdaptersetData(arg0: List<com.motiv.example.Post>) {
         postsAdapter.setData(arg0)
     } override fun navigationControllerstartPostDetailsActivity(arg0: String) {

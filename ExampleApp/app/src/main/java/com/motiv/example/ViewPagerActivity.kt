@@ -3,13 +3,17 @@ package com.motiv.example
 import android.os.Bundle
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.motiv.example.dao.DaoRepository
 import com.motiv.example.dao.LocalStorage
+import com.motiv.example.databinding.ViewpageractivityBinding
 import kotlinx.android.synthetic.main.viewpageractivity.*
 
 public class ViewPagerActivity : AppCompatActivity(), ViewPagerActivityContract.View {
+
+    private lateinit var viewpageractivityBinding: ViewpageractivityBinding
 
     private lateinit var presenter: ViewPagerActivityContract.Presenter
 
@@ -39,7 +43,7 @@ public class ViewPagerActivity : AppCompatActivity(), ViewPagerActivityContract.
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.viewpageractivity)
+        viewpageractivityBinding = DataBindingUtil.setContentView(this, R.layout.viewpageractivity)
 
         usersListAdapter = UsersListAdapter()
         postsAdapter = PostsAdapter()
@@ -49,9 +53,9 @@ public class ViewPagerActivity : AppCompatActivity(), ViewPagerActivityContract.
         navigationController = NavigationController(this@ViewPagerActivity)
         goApi = GoApiFactory.getInstance(localStorage)
         authApi = AuthApiFactory.getInstance(localStorage)
-        linearlayout00 = findViewById<LinearLayout>(R.id.linearlayout00)
-        tablayout10 = findViewById<TabLayout>(R.id.tablayout10)
-        viewpager11 = findViewById<ViewPager>(R.id.viewpager11)
+        linearlayout00 = viewpageractivityBinding.linearlayout00
+        tablayout10 = viewpageractivityBinding.tablayout10
+        viewpager11 = viewpageractivityBinding.viewpager11
 
         presenter = ViewPagerActivityPresenter(this@ViewPagerActivity, goApi, authApi, daoRepository, localStorage)
 
