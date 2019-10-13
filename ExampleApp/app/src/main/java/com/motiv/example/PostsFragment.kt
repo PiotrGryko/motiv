@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.motiv.example.dao.DaoRepository
 import com.motiv.example.dao.LocalStorage
+import com.motiv.example.databinding.PostsfragmentBinding
 import dagger.*
 import dagger.android.*
 import dagger.android.support.*
@@ -18,6 +19,8 @@ import kotlin.collections.List
 import kotlinx.android.synthetic.main.postsfragment.*
 
 public class PostsFragment : Fragment() {
+
+    private lateinit var postsfragmentBinding: PostsfragmentBinding
 
     @Inject
     lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
@@ -52,15 +55,15 @@ public class PostsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         AndroidSupportInjection.inject(this)
     } override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?, savedInstanceState: Bundle?): View {
-        val v: View = inflater.inflate(R.layout.postsfragment, parent, false)
+        postsfragmentBinding = PostsfragmentBinding.inflate(inflater)
 
         usersListAdapter = UsersListAdapter()
         postsAdapter = PostsAdapter()
         photosPagerAdapter = PhotosPagerAdapter()
         viewPagerFragmentsAdapter = ViewPagerFragmentsAdapter(activity!!.getSupportFragmentManager())
         navigationController = NavigationController(activity!!)
-        linearlayout00 = v.findViewById<LinearLayout>(R.id.linearlayout00)
-        recyclerview10 = v.findViewById<RecyclerView>(R.id.recyclerview10)
+        linearlayout00 = postsfragmentBinding.linearlayout00
+        recyclerview10 = postsfragmentBinding.recyclerview10
 
         recyclerview10?.setLayoutManager(LinearLayoutManager(activity!!))
 
@@ -85,6 +88,6 @@ public class PostsFragment : Fragment() {
             } 
         })
 
-        return v
+        return postsfragmentBinding.getRoot()
     }
 }
