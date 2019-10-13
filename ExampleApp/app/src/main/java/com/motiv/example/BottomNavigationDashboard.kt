@@ -3,13 +3,17 @@ package com.motiv.example
 import android.os.Bundle
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.motiv.example.dao.DaoRepository
 import com.motiv.example.dao.DaoRepositoryFactory
 import com.motiv.example.dao.LocalStorage
+import com.motiv.example.databinding.BottomnavigationdashboardBinding
 import kotlinx.android.synthetic.main.bottomnavigationdashboard.*
 
 public class BottomNavigationDashboard : AppCompatActivity() {
+
+    private lateinit var bottomnavigationdashboardBinding: BottomnavigationdashboardBinding
 
     private lateinit var usersListAdapter: UsersListAdapter
 
@@ -35,7 +39,7 @@ public class BottomNavigationDashboard : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.bottomnavigationdashboard)
+        bottomnavigationdashboardBinding = DataBindingUtil.setContentView(this, R.layout.bottomnavigationdashboard)
 
         usersListAdapter = UsersListAdapter()
         postsAdapter = PostsAdapter()
@@ -46,8 +50,8 @@ public class BottomNavigationDashboard : AppCompatActivity() {
         navigationController = NavigationController(this@BottomNavigationDashboard)
         goApi = GoApiFactory.getInstance(localStorage)
         authApi = AuthApiFactory.getInstance(localStorage)
-        relativelayout00 = findViewById<RelativeLayout>(R.id.relativelayout00)
-        bottomnavigationview11 = findViewById<BottomNavigationView>(R.id.bottomnavigationview11)
+        relativelayout00 = bottomnavigationdashboardBinding.relativelayout00
+        bottomnavigationview11 = bottomnavigationdashboardBinding.bottomnavigationview11
 
         bottomnavigationview11.setOnNavigationItemSelectedListener(object : com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemSelectedListener {
             override fun onNavigationItemSelected(argument0: android.view.MenuItem): Boolean {
