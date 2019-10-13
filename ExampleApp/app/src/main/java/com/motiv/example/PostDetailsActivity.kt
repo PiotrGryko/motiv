@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.*
 import com.motiv.example.dao.DaoRepository
 import com.motiv.example.dao.LocalStorage
+import com.motiv.example.databinding.PostdetailsactivityBinding
 import dagger.*
 import dagger.android.*
 import dagger.android.support.*
@@ -14,6 +16,8 @@ import javax.inject.*
 import kotlinx.android.synthetic.main.postdetailsactivity.*
 
 public class PostDetailsActivity : AppCompatActivity(), HasSupportFragmentInjector {
+
+    private lateinit var postdetailsactivityBinding: PostdetailsactivityBinding
 
     @Inject
     lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
@@ -53,7 +57,7 @@ public class PostDetailsActivity : AppCompatActivity(), HasSupportFragmentInject
     } override fun onCreate(savedInstanceState: android.os.Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.postdetailsactivity)
+        postdetailsactivityBinding = DataBindingUtil.setContentView(this, R.layout.postdetailsactivity)
 
         val postId = getIntent().getStringExtra("postId")
 
@@ -62,9 +66,9 @@ public class PostDetailsActivity : AppCompatActivity(), HasSupportFragmentInject
         photosPagerAdapter = PhotosPagerAdapter()
         viewPagerFragmentsAdapter = ViewPagerFragmentsAdapter(this@PostDetailsActivity.getSupportFragmentManager())
         navigationController = NavigationController(this@PostDetailsActivity)
-        linearlayout00 = findViewById<LinearLayout>(R.id.linearlayout00)
-        textview10 = findViewById<TextView>(R.id.textview10)
-        textview11 = findViewById<TextView>(R.id.textview11)
+        linearlayout00 = postdetailsactivityBinding.linearlayout00
+        textview10 = postdetailsactivityBinding.textview10
+        textview11 = postdetailsactivityBinding.textview11
 
         daoRepository.loadPost(
             postId,

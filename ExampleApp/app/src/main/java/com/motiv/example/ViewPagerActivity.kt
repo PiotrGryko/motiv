@@ -3,11 +3,13 @@ package com.motiv.example
 import android.os.Bundle
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.*
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.motiv.example.dao.DaoRepository
 import com.motiv.example.dao.LocalStorage
+import com.motiv.example.databinding.ViewpageractivityBinding
 import dagger.*
 import dagger.android.*
 import dagger.android.support.*
@@ -15,6 +17,8 @@ import javax.inject.*
 import kotlinx.android.synthetic.main.viewpageractivity.*
 
 public class ViewPagerActivity : AppCompatActivity(), HasSupportFragmentInjector {
+
+    private lateinit var viewpageractivityBinding: ViewpageractivityBinding
 
     @Inject
     lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
@@ -52,16 +56,16 @@ public class ViewPagerActivity : AppCompatActivity(), HasSupportFragmentInjector
     } override fun onCreate(savedInstanceState: android.os.Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.viewpageractivity)
+        viewpageractivityBinding = DataBindingUtil.setContentView(this, R.layout.viewpageractivity)
 
         usersListAdapter = UsersListAdapter()
         postsAdapter = PostsAdapter()
         photosPagerAdapter = PhotosPagerAdapter()
         viewPagerFragmentsAdapter = ViewPagerFragmentsAdapter(this@ViewPagerActivity.getSupportFragmentManager())
         navigationController = NavigationController(this@ViewPagerActivity)
-        linearlayout00 = findViewById<LinearLayout>(R.id.linearlayout00)
-        tablayout10 = findViewById<TabLayout>(R.id.tablayout10)
-        viewpager11 = findViewById<ViewPager>(R.id.viewpager11)
+        linearlayout00 = viewpageractivityBinding.linearlayout00
+        tablayout10 = viewpageractivityBinding.tablayout10
+        viewpager11 = viewpageractivityBinding.viewpager11
 
         viewpager11.setAdapter(viewPagerFragmentsAdapter)
         tablayout10.setupWithViewPager(viewpager11)
