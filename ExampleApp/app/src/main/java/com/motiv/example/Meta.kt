@@ -1,10 +1,13 @@
  
 package com.motiv.example
+import android.widget.ImageView
 import androidx.annotation.NonNull
+import androidx.databinding.BindingAdapter
 import androidx.room.*
 import com.google.gson.*
 import com.google.gson.annotations.*
 import com.google.gson.reflect.*
+import com.squareup.picasso.Picasso
 import java.util.*
 import java.util.concurrent.*
 @Entity(tableName = "meta")
@@ -40,6 +43,9 @@ public class Meta {
         return this.message
     } fun setMessage(message: String) {
         this.message = message
+    } @BindingAdapter("bind:imageUrl")
+    fun loadImage(view: ImageView, url: String) {
+        Picasso.with(view.getContext()).load(url).into(view)
     } companion object {
         val gson: Gson = Gson()
         fun fromJson(json: String): Meta {
