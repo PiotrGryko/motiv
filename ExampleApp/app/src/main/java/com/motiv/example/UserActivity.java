@@ -5,10 +5,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.*;
 import com.bumptech.glide.Glide;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.LocalStorage;
+import com.motiv.example.databinding.UseractivityBinding;
 import dagger.*;
 import dagger.android.*;
 import dagger.android.support.*;
@@ -16,6 +18,7 @@ import javax.inject.*;
 
 public class UserActivity extends AppCompatActivity implements HasSupportFragmentInjector {
 
+    private UseractivityBinding useractivityBinding;
     @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     private com.motiv.example.User userArgument;
     private UsersListAdapter usersListAdapter;
@@ -43,7 +46,7 @@ public class UserActivity extends AppCompatActivity implements HasSupportFragmen
 
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.useractivity);
+        useractivityBinding = DataBindingUtil.setContentView(this, R.layout.useractivity);
 
         userArgument = com.motiv.example.User.fromJson(getIntent().getStringExtra("userArgument"));
 
@@ -53,10 +56,10 @@ public class UserActivity extends AppCompatActivity implements HasSupportFragmen
         viewPagerFragmentsAdapter =
                 new ViewPagerFragmentsAdapter(UserActivity.this.getSupportFragmentManager());
         navigationController = new NavigationController(UserActivity.this);
-        linearlayout00 = (LinearLayout) findViewById(R.id.linearlayout00);
-        imageview10 = (ImageView) findViewById(R.id.imageview10);
-        textview11 = (TextView) findViewById(R.id.textview11);
-        textview12 = (TextView) findViewById(R.id.textview12);
+        linearlayout00 = useractivityBinding.linearlayout00;
+        imageview10 = useractivityBinding.imageview10;
+        textview11 = useractivityBinding.textview11;
+        textview12 = useractivityBinding.textview12;
 
         Glide.with(UserActivity.this)
                 .load(userArgument.getLinks().getAvatar().getHref())

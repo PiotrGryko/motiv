@@ -6,9 +6,11 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.*;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.LocalStorage;
+import com.motiv.example.databinding.MainactivityBinding;
 import dagger.*;
 import dagger.android.*;
 import dagger.android.support.*;
@@ -16,6 +18,7 @@ import javax.inject.*;
 
 public class MainActivity extends AppCompatActivity implements HasSupportFragmentInjector {
 
+    private MainactivityBinding mainactivityBinding;
     @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
@@ -41,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.mainactivity);
+        mainactivityBinding = DataBindingUtil.setContentView(this, R.layout.mainactivity);
 
         usersListAdapter = new UsersListAdapter();
         postsAdapter = new PostsAdapter();
@@ -49,9 +52,9 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         viewPagerFragmentsAdapter =
                 new ViewPagerFragmentsAdapter(MainActivity.this.getSupportFragmentManager());
         navigationController = new NavigationController(MainActivity.this);
-        linearlayout00 = (LinearLayout) findViewById(R.id.linearlayout00);
-        edittext10 = (EditText) findViewById(R.id.edittext10);
-        button11 = (Button) findViewById(R.id.button11);
+        linearlayout00 = mainactivityBinding.linearlayout00;
+        edittext10 = mainactivityBinding.edittext10;
+        button11 = mainactivityBinding.button11;
 
         button11.setOnClickListener(
                 new android.view.View.OnClickListener() {
