@@ -2,9 +2,8 @@ package com.motiv.example;
 
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import androidx.recyclerview.widget.*;
+import com.motiv.example.databinding.PostsadapterBinding;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.concurrent.*;
@@ -21,13 +20,11 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.AdapterViewH
 
     public class AdapterViewHolder extends RecyclerView.ViewHolder {
 
-        LinearLayout linearlayout00;
-        TextView textview10;
+        private PostsadapterBinding binding;
 
-        public AdapterViewHolder(View itemView) {
-            super(itemView);
-            linearlayout00 = (LinearLayout) itemView.findViewById(R.id.linearlayout00);
-            textview10 = (TextView) itemView.findViewById(R.id.textview10);
+        public AdapterViewHolder(PostsadapterBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 
@@ -49,10 +46,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.AdapterViewH
 
     @Override
     public AdapterViewHolder onCreateViewHolder(android.view.ViewGroup parent, int viewType) {
-
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View row = inflater.inflate(R.layout.postsadapter, parent, false);
-        return new AdapterViewHolder(row);
+        PostsadapterBinding binding = PostsadapterBinding.inflate(inflater);
+        return new AdapterViewHolder(binding);
     }
 
     @Override
@@ -67,7 +63,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.AdapterViewH
                     }
                 });
         Post post = data.get(position);
-        viewHolder.textview10.setText(post.getTitle());
+        viewHolder.binding.textview10.setText(post.getTitle());
     }
 
     public void setOnItemClickListener(

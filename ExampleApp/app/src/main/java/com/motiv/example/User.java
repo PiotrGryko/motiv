@@ -1,9 +1,12 @@
 package com.motiv.example;
 
+import android.widget.ImageView;
 import androidx.annotation.NonNull;
+import androidx.databinding.BindingAdapter;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 import com.google.gson.reflect.*;
+import com.squareup.picasso.Picasso;
 import io.realm.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -140,6 +143,12 @@ public class User extends RealmObject {
 
     public void setStatus(java.lang.String status) {
         this.status = status;
+    }
+
+    @BindingAdapter({"bind:imageUrl"})
+    public static void loadImage(ImageView view, java.lang.String url) {
+
+        Picasso.with(view.getContext()).load(url).into(view);
     }
 
     public static User fromJson(String json) {

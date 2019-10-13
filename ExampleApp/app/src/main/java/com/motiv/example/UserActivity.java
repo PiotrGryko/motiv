@@ -5,12 +5,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.LocalStorage;
+import com.motiv.example.databinding.UseractivityBinding;
 import com.squareup.picasso.Picasso;
 
 public class UserActivity extends AppCompatActivity {
 
+    private UseractivityBinding useractivityBinding;
     private com.motiv.example.User userArgument;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
@@ -30,7 +33,7 @@ public class UserActivity extends AppCompatActivity {
     protected void onCreate(@Nullable android.os.Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.useractivity);
+        useractivityBinding = DataBindingUtil.setContentView(this, R.layout.useractivity);
 
         userArgument = com.motiv.example.User.fromJson(getIntent().getStringExtra("userArgument"));
 
@@ -43,10 +46,10 @@ public class UserActivity extends AppCompatActivity {
         navigationController = new NavigationController(UserActivity.this);
         goApi = GoApiFactory.getInstance(localStorage);
         authApi = AuthApiFactory.getInstance(localStorage);
-        linearlayout00 = (LinearLayout) findViewById(R.id.linearlayout00);
-        imageview10 = (ImageView) findViewById(R.id.imageview10);
-        textview11 = (TextView) findViewById(R.id.textview11);
-        textview12 = (TextView) findViewById(R.id.textview12);
+        linearlayout00 = useractivityBinding.linearlayout00;
+        imageview10 = useractivityBinding.imageview10;
+        textview11 = useractivityBinding.textview11;
+        textview12 = useractivityBinding.textview12;
 
         Picasso.with(UserActivity.this)
                 .load(userArgument.getLinks().getAvatar().getHref())
