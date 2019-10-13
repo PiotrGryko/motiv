@@ -6,15 +6,19 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.*
 import com.motiv.example.dao.DaoRepository
 import com.motiv.example.dao.LocalStorage
-import com.motiv.example.databinding.MainactivityBinding
+import dagger.*
+import dagger.android.*
+import dagger.android.support.*
+import javax.inject.*
 import kotlinx.android.synthetic.main.mainactivity.*
 
-public class MainActivity : AppCompatActivity() {
+public class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
-    private lateinit var mainactivityBinding: MainactivityBinding
+    @Inject
+    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
 
     private lateinit var usersListAdapter: UsersListAdapter
 
@@ -24,13 +28,17 @@ public class MainActivity : AppCompatActivity() {
 
     private lateinit var viewPagerFragmentsAdapter: ViewPagerFragmentsAdapter
 
-    private lateinit var goApi: GoApi
+    @Inject
+    lateinit var goApi: GoApi
 
-    private lateinit var authApi: AuthApi
+    @Inject
+    lateinit var authApi: AuthApi
 
-    private var daoRepository: DaoRepository = DaoRepositoryFactory.getInstance(this@MainActivity)
+    @Inject
+    lateinit var daoRepository: DaoRepository
 
-    private lateinit var localStorage: LocalStorage
+    @Inject
+    lateinit var localStorage: LocalStorage
 
     private lateinit var navigationController: NavigationController
 
@@ -40,21 +48,21 @@ public class MainActivity : AppCompatActivity() {
 
     private lateinit var button11: Button
 
-    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+    override fun supportFragmentInjector(): AndroidInjector<Fragment> {
+        return dispatchingAndroidInjector
+    } override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        mainactivityBinding = DataBindingUtil.setContentView(this, R.layout.mainactivity)
+        setContentView(R.layout.mainactivity)
 
         usersListAdapter = UsersListAdapter()
         postsAdapter = PostsAdapter()
         photosPagerAdapter = PhotosPagerAdapter()
         viewPagerFragmentsAdapter = ViewPagerFragmentsAdapter(this@MainActivity.getSupportFragmentManager())
-        localStorage = LocalStorage.getInstance(this@MainActivity)
         navigationController = NavigationController(this@MainActivity)
-        goApi = GoApiFactory.getInstance(localStorage)
-        authApi = AuthApiFactory.getInstance(localStorage)
-        linearlayout00 = mainactivityBinding.linearlayout00
-        edittext10 = mainactivityBinding.edittext10
-        button11 = mainactivityBinding.button11
+        linearlayout00 = findViewById<LinearLayout>(R.id.linearlayout00)
+        edittext10 = findViewById<EditText>(R.id.edittext10)
+        button11 = findViewById<Button>(R.id.button11)
 
         button11.setOnClickListener(object : android.view.View.OnClickListener {
             override fun onClick(argument0: android.view.View) {

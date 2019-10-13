@@ -5,9 +5,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.fragment.app.*
 import androidx.viewpager.widget.PagerAdapter
-import com.motiv.example.databinding.PhotospageradapterBinding
-import com.squareup.picasso.Picasso
+import com.bumptech.glide.Glide
+import dagger.*
+import dagger.android.*
+import dagger.android.support.*
+import javax.inject.*
 import kotlin.collections.List
 
 public class PhotosPagerAdapter : PagerAdapter() {
@@ -30,12 +34,16 @@ public class PhotosPagerAdapter : PagerAdapter() {
         container.removeView(o as View)
     } override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val inflater = LayoutInflater.from(container.getContext())
-        val binding = PhotospageradapterBinding.inflate(inflater)
+        val v = inflater.inflate(R.layout.photospageradapter, container, false)
+        linearlayout00 = v.findViewById<LinearLayout>(R.id.linearlayout00)
+        imageview10 = v.findViewById<ImageView>(R.id.imageview10)
+
         val photo: Photo = data.get(position)
+        Glide.with(container.getContext())
+            .load(photo.getUrl())
+            .into(imageview10)
 
-        Picasso.with(container.getContext()).load(photo.getUrl()).into(binding.imageview10)
-
-        container.addView(binding.root)
-        return binding.root
+        container.addView(v)
+        return v
     }
 }

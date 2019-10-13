@@ -1,370 +1,352 @@
  
 package com.motiv.example.dao
+import android.os.Handler
+import androidx.fragment.app.*
 import com.motiv.example.AuthToken
 import com.motiv.example.Link
 import com.motiv.example.Links
+import com.motiv.example.LinksWithReferences
 import com.motiv.example.Meta
 import com.motiv.example.OnResponseListener
 import com.motiv.example.Photo
+import com.motiv.example.PhotoWithReferences
 import com.motiv.example.PhotosListResponse
+import com.motiv.example.PhotosListResponseWithReferences
 import com.motiv.example.Post
+import com.motiv.example.PostWithReferences
 import com.motiv.example.PostsListResponse
+import com.motiv.example.PostsListResponseWithReferences
 import com.motiv.example.User
 import com.motiv.example.UserResponse
+import com.motiv.example.UserResponseWithReferences
+import com.motiv.example.UserWithReferences
 import com.motiv.example.UsersResponse
-import io.realm.*
+import com.motiv.example.UsersResponseWithReferences
+import dagger.*
+import dagger.android.*
+import dagger.android.support.*
 import java.util.*
 import java.util.concurrent.*
+import javax.inject.*
 import kotlin.collections.List
 
-public class DaoRepository {
+public class DaoRepository(val handler: Handler, val myRoomDatabase: MyRoomDatabase, val executor: Executor) {
 
-    private var myDatabase: Realm
-
-    constructor(myDatabase: Realm) {
-        this.myDatabase = myDatabase
-    }
-
-    fun saveUsers(users: List<com.motiv.example.User>, onResponseListener: OnResponseListener<List<com.motiv.example.User>>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                for (user: User in users) {
-                    it.copyToRealm(user)
-                }
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(users)
-            }
-        )
-    } fun loadUser(id: String, onResponseListener: OnResponseListener<com.motiv.example.User>) {
-        var realmResponse = myDatabase.where(User::class.java).equalTo("id", id).findFirst()
-        val result = myDatabase.copyFromRealm(realmResponse)!!
-        onResponseListener.onSuccess(result)
-    } fun loadUsers(onResponseListener: OnResponseListener<List<com.motiv.example.User>>) {
-        val result = myDatabase.where(User::class.java).findAll()
-        val users = mutableListOf<User>()
-        for (i in result.indices) {
-            users.add(myDatabase.copyFromRealm(result.get(i))!!)
+    fun saveUser(user: com.motiv.example.User, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.User>) {
+        updateUser(user); executor.execute {
+            myRoomDatabase.userDao().saveUser(user)
+            passSuccessResultToUi(user, onResponseListener)
         }
-        onResponseListener.onSuccess(users)
-    } fun saveUser(user: User, onResponseListener: OnResponseListener<User>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                it.copyToRealm(user)
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(user)
-            }
-        )
-    } fun saveLinkss(linkss: List<com.motiv.example.Links>, onResponseListener: OnResponseListener<List<com.motiv.example.Links>>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                for (links: Links in linkss) {
-                    it.copyToRealm(links)
-                }
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(linkss)
-            }
-        )
-    } fun loadLinks(id: String, onResponseListener: OnResponseListener<com.motiv.example.Links>) {
-        var realmResponse = myDatabase.where(Links::class.java).equalTo("id", id).findFirst()
-        val result = myDatabase.copyFromRealm(realmResponse)!!
-        onResponseListener.onSuccess(result)
-    } fun loadLinkss(onResponseListener: OnResponseListener<List<com.motiv.example.Links>>) {
-        val result = myDatabase.where(Links::class.java).findAll()
-        val linkss = mutableListOf<Links>()
-        for (i in result.indices) {
-            linkss.add(myDatabase.copyFromRealm(result.get(i))!!)
+    } fun saveUsers(users: List<com.motiv.example.User>, onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.User>>) {
+        updateUsers(users)
+        executor.execute {
+            myRoomDatabase.userDao().saveUsers(users)
+            passSuccessResultToUi(users, onResponseListener)
         }
-        onResponseListener.onSuccess(linkss)
-    } fun saveLinks(links: Links, onResponseListener: OnResponseListener<Links>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                it.copyToRealm(links)
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(links)
+    } fun loadUsers(onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.User>>) {
+        executor.execute {
+            val resultWithReferences = myRoomDatabase.userDao().getUsers()
+            val result = ArrayList<User>()
+            for (withReference: UserWithReferences in resultWithReferences) {
+                result.add(withReference.getUser())
             }
-        )
-    } fun saveLinks(links: List<com.motiv.example.Link>, onResponseListener: OnResponseListener<List<com.motiv.example.Link>>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                for (link: Link in links) {
-                    it.copyToRealm(link)
-                }
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(links)
-            }
-        )
-    } fun loadLink(id: String, onResponseListener: OnResponseListener<com.motiv.example.Link>) {
-        var realmResponse = myDatabase.where(Link::class.java).equalTo("id", id).findFirst()
-        val result = myDatabase.copyFromRealm(realmResponse)!!
-        onResponseListener.onSuccess(result)
-    } fun loadLinks(onResponseListener: OnResponseListener<List<com.motiv.example.Link>>) {
-        val result = myDatabase.where(Link::class.java).findAll()
-        val links = mutableListOf<Link>()
-        for (i in result.indices) {
-            links.add(myDatabase.copyFromRealm(result.get(i))!!)
+            passSuccessResultToUi(result, onResponseListener)
         }
-        onResponseListener.onSuccess(links)
-    } fun saveLink(link: Link, onResponseListener: OnResponseListener<Link>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                it.copyToRealm(link)
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(link)
-            }
-        )
-    } fun saveUserResponses(userResponses: List<com.motiv.example.UserResponse>, onResponseListener: OnResponseListener<List<com.motiv.example.UserResponse>>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                for (userResponse: UserResponse in userResponses) {
-                    it.copyToRealm(userResponse)
-                }
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(userResponses)
-            }
-        )
-    } fun loadUserResponse(id: String, onResponseListener: OnResponseListener<com.motiv.example.UserResponse>) {
-        var realmResponse = myDatabase.where(UserResponse::class.java).equalTo("id", id).findFirst()
-        val result = myDatabase.copyFromRealm(realmResponse)!!
-        onResponseListener.onSuccess(result)
-    } fun loadUserResponses(onResponseListener: OnResponseListener<List<com.motiv.example.UserResponse>>) {
-        val result = myDatabase.where(UserResponse::class.java).findAll()
-        val userResponses = mutableListOf<UserResponse>()
-        for (i in result.indices) {
-            userResponses.add(myDatabase.copyFromRealm(result.get(i))!!)
+    } fun loadUser(id: String, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.User>) {
+        executor.execute {
+            val resultWithReference = myRoomDatabase.userDao().getUser(id)
+            passSuccessResultToUi(resultWithReference.getUser(), onResponseListener)
         }
-        onResponseListener.onSuccess(userResponses)
-    } fun saveUserResponse(userResponse: UserResponse, onResponseListener: OnResponseListener<UserResponse>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                it.copyToRealm(userResponse)
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(userResponse)
-            }
-        )
-    } fun saveMetas(metas: List<com.motiv.example.Meta>, onResponseListener: OnResponseListener<List<com.motiv.example.Meta>>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                for (meta: Meta in metas) {
-                    it.copyToRealm(meta)
-                }
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(metas)
-            }
-        )
-    } fun loadMeta(id: String, onResponseListener: OnResponseListener<com.motiv.example.Meta>) {
-        var realmResponse = myDatabase.where(Meta::class.java).equalTo("id", id).findFirst()
-        val result = myDatabase.copyFromRealm(realmResponse)!!
-        onResponseListener.onSuccess(result)
-    } fun loadMetas(onResponseListener: OnResponseListener<List<com.motiv.example.Meta>>) {
-        val result = myDatabase.where(Meta::class.java).findAll()
-        val metas = mutableListOf<Meta>()
-        for (i in result.indices) {
-            metas.add(myDatabase.copyFromRealm(result.get(i))!!)
+    } fun saveLinks(links: com.motiv.example.Links, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.Links>) {
+        updateLinks(links); executor.execute {
+            myRoomDatabase.linksDao().saveLinks(links)
+            passSuccessResultToUi(links, onResponseListener)
         }
-        onResponseListener.onSuccess(metas)
-    } fun saveMeta(meta: Meta, onResponseListener: OnResponseListener<Meta>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                it.copyToRealm(meta)
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(meta)
-            }
-        )
-    } fun saveUsersResponses(usersResponses: List<com.motiv.example.UsersResponse>, onResponseListener: OnResponseListener<List<com.motiv.example.UsersResponse>>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                for (usersResponse: UsersResponse in usersResponses) {
-                    it.copyToRealm(usersResponse)
-                }
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(usersResponses)
-            }
-        )
-    } fun loadUsersResponse(id: String, onResponseListener: OnResponseListener<com.motiv.example.UsersResponse>) {
-        var realmResponse = myDatabase.where(UsersResponse::class.java).equalTo("id", id).findFirst()
-        val result = myDatabase.copyFromRealm(realmResponse)!!
-        onResponseListener.onSuccess(result)
-    } fun loadUsersResponses(onResponseListener: OnResponseListener<List<com.motiv.example.UsersResponse>>) {
-        val result = myDatabase.where(UsersResponse::class.java).findAll()
-        val usersResponses = mutableListOf<UsersResponse>()
-        for (i in result.indices) {
-            usersResponses.add(myDatabase.copyFromRealm(result.get(i))!!)
+    } fun saveLinkss(linkss: List<com.motiv.example.Links>, onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.Links>>) {
+        updateLinkss(linkss)
+        executor.execute {
+            myRoomDatabase.linksDao().saveLinkss(linkss)
+            passSuccessResultToUi(linkss, onResponseListener)
         }
-        onResponseListener.onSuccess(usersResponses)
-    } fun saveUsersResponse(usersResponse: UsersResponse, onResponseListener: OnResponseListener<UsersResponse>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                it.copyToRealm(usersResponse)
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(usersResponse)
+    } fun loadLinkss(onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.Links>>) {
+        executor.execute {
+            val resultWithReferences = myRoomDatabase.linksDao().getLinkss()
+            val result = ArrayList<Links>()
+            for (withReference: LinksWithReferences in resultWithReferences) {
+                result.add(withReference.getLinks())
             }
-        )
-    } fun savePostsListResponses(postsListResponses: List<com.motiv.example.PostsListResponse>, onResponseListener: OnResponseListener<List<com.motiv.example.PostsListResponse>>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                for (postsListResponse: PostsListResponse in postsListResponses) {
-                    it.copyToRealm(postsListResponse)
-                }
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(postsListResponses)
-            }
-        )
-    } fun loadPostsListResponse(id: String, onResponseListener: OnResponseListener<com.motiv.example.PostsListResponse>) {
-        var realmResponse = myDatabase.where(PostsListResponse::class.java).equalTo("id", id).findFirst()
-        val result = myDatabase.copyFromRealm(realmResponse)!!
-        onResponseListener.onSuccess(result)
-    } fun loadPostsListResponses(onResponseListener: OnResponseListener<List<com.motiv.example.PostsListResponse>>) {
-        val result = myDatabase.where(PostsListResponse::class.java).findAll()
-        val postsListResponses = mutableListOf<PostsListResponse>()
-        for (i in result.indices) {
-            postsListResponses.add(myDatabase.copyFromRealm(result.get(i))!!)
+            passSuccessResultToUi(result, onResponseListener)
         }
-        onResponseListener.onSuccess(postsListResponses)
-    } fun savePostsListResponse(postsListResponse: PostsListResponse, onResponseListener: OnResponseListener<PostsListResponse>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                it.copyToRealm(postsListResponse)
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(postsListResponse)
-            }
-        )
-    } fun savePosts(posts: List<com.motiv.example.Post>, onResponseListener: OnResponseListener<List<com.motiv.example.Post>>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                for (post: Post in posts) {
-                    it.copyToRealm(post)
-                }
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(posts)
-            }
-        )
-    } fun loadPost(id: String, onResponseListener: OnResponseListener<com.motiv.example.Post>) {
-        var realmResponse = myDatabase.where(Post::class.java).equalTo("id", id).findFirst()
-        val result = myDatabase.copyFromRealm(realmResponse)!!
-        onResponseListener.onSuccess(result)
-    } fun loadPosts(onResponseListener: OnResponseListener<List<com.motiv.example.Post>>) {
-        val result = myDatabase.where(Post::class.java).findAll()
-        val posts = mutableListOf<Post>()
-        for (i in result.indices) {
-            posts.add(myDatabase.copyFromRealm(result.get(i))!!)
+    } fun loadLinks(id: String, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.Links>) {
+        executor.execute {
+            val resultWithReference = myRoomDatabase.linksDao().getLinks(id)
+            passSuccessResultToUi(resultWithReference.getLinks(), onResponseListener)
         }
-        onResponseListener.onSuccess(posts)
-    } fun savePost(post: Post, onResponseListener: OnResponseListener<Post>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                it.copyToRealm(post)
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(post)
-            }
-        )
-    } fun savePhotosListResponses(photosListResponses: List<com.motiv.example.PhotosListResponse>, onResponseListener: OnResponseListener<List<com.motiv.example.PhotosListResponse>>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                for (photosListResponse: PhotosListResponse in photosListResponses) {
-                    it.copyToRealm(photosListResponse)
-                }
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(photosListResponses)
-            }
-        )
-    } fun loadPhotosListResponse(id: String, onResponseListener: OnResponseListener<com.motiv.example.PhotosListResponse>) {
-        var realmResponse = myDatabase.where(PhotosListResponse::class.java).equalTo("id", id).findFirst()
-        val result = myDatabase.copyFromRealm(realmResponse)!!
-        onResponseListener.onSuccess(result)
-    } fun loadPhotosListResponses(onResponseListener: OnResponseListener<List<com.motiv.example.PhotosListResponse>>) {
-        val result = myDatabase.where(PhotosListResponse::class.java).findAll()
-        val photosListResponses = mutableListOf<PhotosListResponse>()
-        for (i in result.indices) {
-            photosListResponses.add(myDatabase.copyFromRealm(result.get(i))!!)
+    } fun saveLink(link: com.motiv.example.Link, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.Link>) {
+        executor.execute {
+            myRoomDatabase.linkDao().saveLink(link)
+            passSuccessResultToUi(link, onResponseListener)
         }
-        onResponseListener.onSuccess(photosListResponses)
-    } fun savePhotosListResponse(photosListResponse: PhotosListResponse, onResponseListener: OnResponseListener<PhotosListResponse>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                it.copyToRealm(photosListResponse)
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(photosListResponse)
-            }
-        )
-    } fun savePhotos(photos: List<com.motiv.example.Photo>, onResponseListener: OnResponseListener<List<com.motiv.example.Photo>>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                for (photo: Photo in photos) {
-                    it.copyToRealm(photo)
-                }
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(photos)
-            }
-        )
-    } fun loadPhoto(id: String, onResponseListener: OnResponseListener<com.motiv.example.Photo>) {
-        var realmResponse = myDatabase.where(Photo::class.java).equalTo("id", id).findFirst()
-        val result = myDatabase.copyFromRealm(realmResponse)!!
-        onResponseListener.onSuccess(result)
-    } fun loadPhotos(onResponseListener: OnResponseListener<List<com.motiv.example.Photo>>) {
-        val result = myDatabase.where(Photo::class.java).findAll()
-        val photos = mutableListOf<Photo>()
-        for (i in result.indices) {
-            photos.add(myDatabase.copyFromRealm(result.get(i))!!)
+    } fun saveLinks(links: List<com.motiv.example.Link>, onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.Link>>) {
+        executor.execute {
+            myRoomDatabase.linkDao().saveLinks(links)
+            passSuccessResultToUi(links, onResponseListener)
         }
-        onResponseListener.onSuccess(photos)
-    } fun savePhoto(photo: Photo, onResponseListener: OnResponseListener<Photo>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                it.copyToRealm(photo)
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(photo)
-            }
-        )
-    } fun saveAuthTokens(authTokens: List<com.motiv.example.AuthToken>, onResponseListener: OnResponseListener<List<com.motiv.example.AuthToken>>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                for (authToken: AuthToken in authTokens) {
-                    it.copyToRealm(authToken)
-                }
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(authTokens)
-            }
-        )
-    } fun loadAuthToken(id: String, onResponseListener: OnResponseListener<com.motiv.example.AuthToken>) {
-        var realmResponse = myDatabase.where(AuthToken::class.java).equalTo("id", id).findFirst()
-        val result = myDatabase.copyFromRealm(realmResponse)!!
-        onResponseListener.onSuccess(result)
-    } fun loadAuthTokens(onResponseListener: OnResponseListener<List<com.motiv.example.AuthToken>>) {
-        val result = myDatabase.where(AuthToken::class.java).findAll()
-        val authTokens = mutableListOf<AuthToken>()
-        for (i in result.indices) {
-            authTokens.add(myDatabase.copyFromRealm(result.get(i))!!)
+    } fun loadLinks(onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.Link>>) {
+        executor.execute {
+            var result: List<Link> = myRoomDatabase.linkDao().getLinks()
+            passSuccessResultToUi(result, onResponseListener)
         }
-        onResponseListener.onSuccess(authTokens)
-    } fun saveAuthToken(authToken: AuthToken, onResponseListener: OnResponseListener<AuthToken>) {
-        myDatabase.executeTransactionAsync(
-            Realm.Transaction {
-                it.copyToRealm(authToken)
-            },
-            Realm.Transaction.OnSuccess {
-                onResponseListener.onSuccess(authToken)
+    } fun loadLink(id: String, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.Link>) {
+        executor.execute {
+            var result: Link = myRoomDatabase.linkDao().getLink(id)
+            passSuccessResultToUi(result, onResponseListener)
+        }
+    } fun saveUserResponse(userResponse: com.motiv.example.UserResponse, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.UserResponse>) {
+        updateUserResponse(userResponse); executor.execute {
+            myRoomDatabase.userResponseDao().saveUserResponse(userResponse)
+            passSuccessResultToUi(userResponse, onResponseListener)
+        }
+    } fun saveUserResponses(userResponses: List<com.motiv.example.UserResponse>, onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.UserResponse>>) {
+        updateUserResponses(userResponses)
+        executor.execute {
+            myRoomDatabase.userResponseDao().saveUserResponses(userResponses)
+            passSuccessResultToUi(userResponses, onResponseListener)
+        }
+    } fun loadUserResponses(onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.UserResponse>>) {
+        executor.execute {
+            val resultWithReferences = myRoomDatabase.userResponseDao().getUserResponses()
+            val result = ArrayList<UserResponse>()
+            for (withReference: UserResponseWithReferences in resultWithReferences) {
+                result.add(withReference.getUserResponse())
             }
-        )
+            passSuccessResultToUi(result, onResponseListener)
+        }
+    } fun loadUserResponse(id: String, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.UserResponse>) {
+        executor.execute {
+            val resultWithReference = myRoomDatabase.userResponseDao().getUserResponse(id)
+            passSuccessResultToUi(resultWithReference.getUserResponse(), onResponseListener)
+        }
+    } fun saveMeta(meta: com.motiv.example.Meta, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.Meta>) {
+        executor.execute {
+            myRoomDatabase.metaDao().saveMeta(meta)
+            passSuccessResultToUi(meta, onResponseListener)
+        }
+    } fun saveMetas(metas: List<com.motiv.example.Meta>, onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.Meta>>) {
+        executor.execute {
+            myRoomDatabase.metaDao().saveMetas(metas)
+            passSuccessResultToUi(metas, onResponseListener)
+        }
+    } fun loadMetas(onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.Meta>>) {
+        executor.execute {
+            var result: List<Meta> = myRoomDatabase.metaDao().getMetas()
+            passSuccessResultToUi(result, onResponseListener)
+        }
+    } fun loadMeta(id: String, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.Meta>) {
+        executor.execute {
+            var result: Meta = myRoomDatabase.metaDao().getMeta(id)
+            passSuccessResultToUi(result, onResponseListener)
+        }
+    } fun saveUsersResponse(usersResponse: com.motiv.example.UsersResponse, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.UsersResponse>) {
+        updateUsersResponse(usersResponse); executor.execute {
+            myRoomDatabase.usersResponseDao().saveUsersResponse(usersResponse)
+            passSuccessResultToUi(usersResponse, onResponseListener)
+        }
+    } fun saveUsersResponses(usersResponses: List<com.motiv.example.UsersResponse>, onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.UsersResponse>>) {
+        updateUsersResponses(usersResponses)
+        executor.execute {
+            myRoomDatabase.usersResponseDao().saveUsersResponses(usersResponses)
+            passSuccessResultToUi(usersResponses, onResponseListener)
+        }
+    } fun loadUsersResponses(onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.UsersResponse>>) {
+        executor.execute {
+            val resultWithReferences = myRoomDatabase.usersResponseDao().getUsersResponses()
+            val result = ArrayList<UsersResponse>()
+            for (withReference: UsersResponseWithReferences in resultWithReferences) {
+                result.add(withReference.getUsersResponse())
+            }
+            passSuccessResultToUi(result, onResponseListener)
+        }
+    } fun loadUsersResponse(id: String, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.UsersResponse>) {
+        executor.execute {
+            val resultWithReference = myRoomDatabase.usersResponseDao().getUsersResponse(id)
+            passSuccessResultToUi(resultWithReference.getUsersResponse(), onResponseListener)
+        }
+    } fun savePostsListResponse(postsListResponse: com.motiv.example.PostsListResponse, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.PostsListResponse>) {
+        updatePostsListResponse(postsListResponse); executor.execute {
+            myRoomDatabase.postsListResponseDao().savePostsListResponse(postsListResponse)
+            passSuccessResultToUi(postsListResponse, onResponseListener)
+        }
+    } fun savePostsListResponses(postsListResponses: List<com.motiv.example.PostsListResponse>, onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.PostsListResponse>>) {
+        updatePostsListResponses(postsListResponses)
+        executor.execute {
+            myRoomDatabase.postsListResponseDao().savePostsListResponses(postsListResponses)
+            passSuccessResultToUi(postsListResponses, onResponseListener)
+        }
+    } fun loadPostsListResponses(onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.PostsListResponse>>) {
+        executor.execute {
+            val resultWithReferences = myRoomDatabase.postsListResponseDao().getPostsListResponses()
+            val result = ArrayList<PostsListResponse>()
+            for (withReference: PostsListResponseWithReferences in resultWithReferences) {
+                result.add(withReference.getPostsListResponse())
+            }
+            passSuccessResultToUi(result, onResponseListener)
+        }
+    } fun loadPostsListResponse(id: String, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.PostsListResponse>) {
+        executor.execute {
+            val resultWithReference = myRoomDatabase.postsListResponseDao().getPostsListResponse(id)
+            passSuccessResultToUi(resultWithReference.getPostsListResponse(), onResponseListener)
+        }
+    } fun savePost(post: com.motiv.example.Post, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.Post>) {
+        updatePost(post); executor.execute {
+            myRoomDatabase.postDao().savePost(post)
+            passSuccessResultToUi(post, onResponseListener)
+        }
+    } fun savePosts(posts: List<com.motiv.example.Post>, onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.Post>>) {
+        updatePosts(posts)
+        executor.execute {
+            myRoomDatabase.postDao().savePosts(posts)
+            passSuccessResultToUi(posts, onResponseListener)
+        }
+    } fun loadPosts(onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.Post>>) {
+        executor.execute {
+            val resultWithReferences = myRoomDatabase.postDao().getPosts()
+            val result = ArrayList<Post>()
+            for (withReference: PostWithReferences in resultWithReferences) {
+                result.add(withReference.getPost())
+            }
+            passSuccessResultToUi(result, onResponseListener)
+        }
+    } fun loadPost(id: String, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.Post>) {
+        executor.execute {
+            val resultWithReference = myRoomDatabase.postDao().getPost(id)
+            passSuccessResultToUi(resultWithReference.getPost(), onResponseListener)
+        }
+    } fun savePhotosListResponse(photosListResponse: com.motiv.example.PhotosListResponse, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.PhotosListResponse>) {
+        updatePhotosListResponse(photosListResponse); executor.execute {
+            myRoomDatabase.photosListResponseDao().savePhotosListResponse(photosListResponse)
+            passSuccessResultToUi(photosListResponse, onResponseListener)
+        }
+    } fun savePhotosListResponses(photosListResponses: List<com.motiv.example.PhotosListResponse>, onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.PhotosListResponse>>) {
+        updatePhotosListResponses(photosListResponses)
+        executor.execute {
+            myRoomDatabase.photosListResponseDao().savePhotosListResponses(photosListResponses)
+            passSuccessResultToUi(photosListResponses, onResponseListener)
+        }
+    } fun loadPhotosListResponses(onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.PhotosListResponse>>) {
+        executor.execute {
+            val resultWithReferences = myRoomDatabase.photosListResponseDao().getPhotosListResponses()
+            val result = ArrayList<PhotosListResponse>()
+            for (withReference: PhotosListResponseWithReferences in resultWithReferences) {
+                result.add(withReference.getPhotosListResponse())
+            }
+            passSuccessResultToUi(result, onResponseListener)
+        }
+    } fun loadPhotosListResponse(id: String, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.PhotosListResponse>) {
+        executor.execute {
+            val resultWithReference = myRoomDatabase.photosListResponseDao().getPhotosListResponse(id)
+            passSuccessResultToUi(resultWithReference.getPhotosListResponse(), onResponseListener)
+        }
+    } fun savePhoto(photo: com.motiv.example.Photo, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.Photo>) {
+        updatePhoto(photo); executor.execute {
+            myRoomDatabase.photoDao().savePhoto(photo)
+            passSuccessResultToUi(photo, onResponseListener)
+        }
+    } fun savePhotos(photos: List<com.motiv.example.Photo>, onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.Photo>>) {
+        updatePhotos(photos)
+        executor.execute {
+            myRoomDatabase.photoDao().savePhotos(photos)
+            passSuccessResultToUi(photos, onResponseListener)
+        }
+    } fun loadPhotos(onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.Photo>>) {
+        executor.execute {
+            val resultWithReferences = myRoomDatabase.photoDao().getPhotos()
+            val result = ArrayList<Photo>()
+            for (withReference: PhotoWithReferences in resultWithReferences) {
+                result.add(withReference.getPhoto())
+            }
+            passSuccessResultToUi(result, onResponseListener)
+        }
+    } fun loadPhoto(id: String, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.Photo>) {
+        executor.execute {
+            val resultWithReference = myRoomDatabase.photoDao().getPhoto(id)
+            passSuccessResultToUi(resultWithReference.getPhoto(), onResponseListener)
+        }
+    } fun saveAuthToken(authToken: com.motiv.example.AuthToken, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.AuthToken>) {
+        executor.execute {
+            myRoomDatabase.authTokenDao().saveAuthToken(authToken)
+            passSuccessResultToUi(authToken, onResponseListener)
+        }
+    } fun saveAuthTokens(authTokens: List<com.motiv.example.AuthToken>, onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.AuthToken>>) {
+        executor.execute {
+            myRoomDatabase.authTokenDao().saveAuthTokens(authTokens)
+            passSuccessResultToUi(authTokens, onResponseListener)
+        }
+    } fun loadAuthTokens(onResponseListener: com.motiv.example.OnResponseListener<List<com.motiv.example.AuthToken>>) {
+        executor.execute {
+            var result: List<AuthToken> = myRoomDatabase.authTokenDao().getAuthTokens()
+            passSuccessResultToUi(result, onResponseListener)
+        }
+    } fun loadAuthToken(id: String, onResponseListener: com.motiv.example.OnResponseListener<com.motiv.example.AuthToken>) {
+        executor.execute {
+            var result: AuthToken = myRoomDatabase.authTokenDao().getAuthToken(id)
+            passSuccessResultToUi(result, onResponseListener)
+        }
+    } fun updateUser(user: User) {
+        user.setLinksId(user.getLinks()?.getId())
+    } fun updateUsers(users: List<User>) {
+        for (user: User in users) {
+            updateUser(user)
+        }
+    } fun updateLinks(links: Links) {
+        links.setEditId(links.getEdit()?.getId()); links.setSelfId(links.getSelf()?.getId()); links.setAvatarId(links.getAvatar()?.getId())
+    } fun updateLinkss(linkss: List<Links>) {
+        for (links: Links in linkss) {
+            updateLinks(links)
+        }
+    } fun updateUserResponse(userResponse: UserResponse) {
+        userResponse.setResultId(userResponse.getResult()?.getId()); userResponse.setMetaId(userResponse.getMeta()?.getId())
+    } fun updateUserResponses(userResponses: List<UserResponse>) {
+        for (userResponse: UserResponse in userResponses) {
+            updateUserResponse(userResponse)
+        }
+    } fun updateUsersResponse(usersResponse: UsersResponse) {
+        usersResponse.setMetaId(usersResponse.getMeta()?.getId()); for (user: com.motiv.example.User in usersResponse.getResult()) {
+            user.setResultOwnerId(usersResponse.getId())
+        }
+    } fun updateUsersResponses(usersResponses: List<UsersResponse>) {
+        for (usersResponse: UsersResponse in usersResponses) {
+            updateUsersResponse(usersResponse)
+        }
+    } fun updatePostsListResponse(postsListResponse: PostsListResponse) {
+        postsListResponse.setMetaId(postsListResponse.getMeta()?.getId()); for (post: com.motiv.example.Post in postsListResponse.getResult()) {
+            post.setResultOwnerId(postsListResponse.getId())
+        }
+    } fun updatePostsListResponses(postsListResponses: List<PostsListResponse>) {
+        for (postsListResponse: PostsListResponse in postsListResponses) {
+            updatePostsListResponse(postsListResponse)
+        }
+    } fun updatePost(post: Post) {
+        post.setLinksId(post.getLinks()?.getId())
+    } fun updatePosts(posts: List<Post>) {
+        for (post: Post in posts) {
+            updatePost(post)
+        }
+    } fun updatePhotosListResponse(photosListResponse: PhotosListResponse) {
+        photosListResponse.setMetaId(photosListResponse.getMeta()?.getId()); for (photo: com.motiv.example.Photo in photosListResponse.getResult()) {
+            photo.setResultOwnerId(photosListResponse.getId())
+        }
+    } fun updatePhotosListResponses(photosListResponses: List<PhotosListResponse>) {
+        for (photosListResponse: PhotosListResponse in photosListResponses) {
+            updatePhotosListResponse(photosListResponse)
+        }
+    } fun updatePhoto(photo: Photo) {
+        photo.setLinksId(photo.getLinks()?.getId())
+    } fun updatePhotos(photos: List<Photo>) {
+        for (photo: Photo in photos) {
+            updatePhoto(photo)
+        }
+    } private fun <T> passSuccessResultToUi(result: T, onResponseListener: OnResponseListener<T>) {
+        handler.post { onResponseListener.onSuccess(result); }
     }
 }
