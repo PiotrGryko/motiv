@@ -1,6 +1,5 @@
 package com.motiv.example.dao;
 
-import androidx.fragment.app.*;
 import com.motiv.example.AuthToken;
 import com.motiv.example.Link;
 import com.motiv.example.Links;
@@ -13,15 +12,11 @@ import com.motiv.example.PostsListResponse;
 import com.motiv.example.User;
 import com.motiv.example.UserResponse;
 import com.motiv.example.UsersResponse;
-import dagger.*;
-import dagger.android.*;
-import dagger.android.support.*;
 import io.realm.*;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
-import javax.inject.*;
 
 public class DaoRepository {
 

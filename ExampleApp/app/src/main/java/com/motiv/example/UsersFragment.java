@@ -12,25 +12,19 @@ import androidx.recyclerview.widget.*;
 import androidx.recyclerview.widget.RecyclerView;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.LocalStorage;
-import com.motiv.example.databinding.UsersfragmentBinding;
-import dagger.*;
-import dagger.android.*;
-import dagger.android.support.*;
-import javax.inject.*;
 
 public class UsersFragment extends Fragment implements UsersFragmentContract.View {
 
-    private UsersfragmentBinding usersfragmentBinding;
-    @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     private UsersFragmentContract.Presenter presenter;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
     private PhotosPagerAdapter photosPagerAdapter;
     private ViewPagerFragmentsAdapter viewPagerFragmentsAdapter;
-    @Inject GoApi goApi;
-    @Inject AuthApi authApi;
-    @Inject DaoRepository daoRepository;
-    @Inject LocalStorage localStorage;
+    private GoApi goApi;
+    private AuthApi authApi;
+    private DaoRepository daoRepository =
+            DaoRepositoryFactory.getInstance(UsersFragment.this.getActivity());
+    private LocalStorage localStorage;
     private NavigationController navigationController;
     private LinearLayout linearlayout00;
     private RecyclerView recyclerview10;
@@ -41,7 +35,7 @@ public class UsersFragment extends Fragment implements UsersFragmentContract.Vie
             @Nullable ViewGroup parent,
             final @Nullable Bundle savedInstanceState) {
 
-        usersfragmentBinding = UsersfragmentBinding.inflate(inflater);
+        View v = inflater.inflate(R.layout.usersfragment, parent, false);
 
         usersListAdapter = new UsersListAdapter();
         postsAdapter = new PostsAdapter();
@@ -49,9 +43,12 @@ public class UsersFragment extends Fragment implements UsersFragmentContract.Vie
         viewPagerFragmentsAdapter =
                 new ViewPagerFragmentsAdapter(
                         UsersFragment.this.getActivity().getSupportFragmentManager());
+        localStorage = LocalStorage.getInstance(UsersFragment.this.getActivity());
         navigationController = new NavigationController(UsersFragment.this.getActivity());
-        linearlayout00 = usersfragmentBinding.linearlayout00;
-        recyclerview10 = usersfragmentBinding.recyclerview10;
+        goApi = GoApiFactory.getInstance(localStorage);
+        authApi = AuthApiFactory.getInstance(localStorage);
+        linearlayout00 = (LinearLayout) v.findViewById(R.id.linearlayout00);
+        recyclerview10 = (RecyclerView) v.findViewById(R.id.recyclerview10);
         presenter =
                 new UsersFragmentPresenter(
                         UsersFragment.this, goApi, authApi, daoRepository, localStorage);
@@ -69,7 +66,7 @@ public class UsersFragment extends Fragment implements UsersFragmentContract.Vie
                     }
                 });
 
-        return usersfragmentBinding.getRoot();
+        return v;
     }
 
     @Override
@@ -86,11 +83,5 @@ public class UsersFragment extends Fragment implements UsersFragmentContract.Vie
     @Override
     public void navigationControllerstartUserActivity(com.motiv.example.User arg0) {
         navigationController.startUserActivity(arg0);
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        AndroidSupportInjection.inject(this);
     }
 }
