@@ -4,12 +4,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.DaoRepositoryFactory;
 import com.motiv.example.dao.LocalStorage;
+import com.motiv.example.databinding.PostdetailsactivityBinding;
 
 public class PostDetailsActivity extends AppCompatActivity {
 
+    private PostdetailsactivityBinding postdetailsactivityBinding;
     private java.lang.String postId;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
@@ -28,7 +31,8 @@ public class PostDetailsActivity extends AppCompatActivity {
     protected void onCreate(@Nullable android.os.Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.postdetailsactivity);
+        postdetailsactivityBinding =
+                DataBindingUtil.setContentView(this, R.layout.postdetailsactivity);
 
         String postId = getIntent().getStringExtra("postId");
 
@@ -42,9 +46,9 @@ public class PostDetailsActivity extends AppCompatActivity {
         navigationController = new NavigationController(PostDetailsActivity.this);
         goApi = GoApiFactory.getInstance(localStorage);
         authApi = AuthApiFactory.getInstance(localStorage);
-        linearlayout00 = (LinearLayout) findViewById(R.id.linearlayout00);
-        textview10 = (TextView) findViewById(R.id.textview10);
-        textview11 = (TextView) findViewById(R.id.textview11);
+        linearlayout00 = postdetailsactivityBinding.linearlayout00;
+        textview10 = postdetailsactivityBinding.textview10;
+        textview11 = postdetailsactivityBinding.textview11;
 
         daoRepository.loadPost(
                 postId,

@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import androidx.viewpager.widget.PagerAdapter;
+import com.motiv.example.databinding.PhotospageradapterBinding;
 import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
@@ -40,15 +41,13 @@ public class PhotosPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         LayoutInflater inflater = LayoutInflater.from(container.getContext());
-        View v = inflater.inflate(R.layout.photospageradapter, container, false);
-        linearlayout00 = (LinearLayout) v.findViewById(R.id.linearlayout00);
-        imageview10 = (ImageView) v.findViewById(R.id.imageview10);
+        PhotospageradapterBinding binding = PhotospageradapterBinding.inflate(inflater);
         Photo photo = data.get(position);
 
-        Picasso.with(container.getContext()).load(photo.getUrl()).into(imageview10);
+        Picasso.with(container.getContext()).load(photo.getUrl()).into(binding.imageview10);
         ;
 
-        container.addView(v);
-        return v;
+        container.addView(binding.getRoot());
+        return binding.getRoot();
     }
 }

@@ -11,9 +11,11 @@ import androidx.viewpager.widget.ViewPager;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.DaoRepositoryFactory;
 import com.motiv.example.dao.LocalStorage;
+import com.motiv.example.databinding.PhotosfragmentBinding;
 
 public class PhotosFragment extends Fragment {
 
+    private PhotosfragmentBinding photosfragmentBinding;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
     private PhotosPagerAdapter photosPagerAdapter;
@@ -32,7 +34,7 @@ public class PhotosFragment extends Fragment {
             @Nullable ViewGroup parent,
             @Nullable Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.photosfragment, parent, false);
+        photosfragmentBinding = PhotosfragmentBinding.inflate(inflater);
 
         usersListAdapter = new UsersListAdapter();
         postsAdapter = new PostsAdapter();
@@ -45,8 +47,8 @@ public class PhotosFragment extends Fragment {
         navigationController = new NavigationController(PhotosFragment.this.getActivity());
         goApi = GoApiFactory.getInstance(localStorage);
         authApi = AuthApiFactory.getInstance(localStorage);
-        linearlayout00 = (LinearLayout) v.findViewById(R.id.linearlayout00);
-        viewpager10 = (ViewPager) v.findViewById(R.id.viewpager10);
+        linearlayout00 = photosfragmentBinding.linearlayout00;
+        viewpager10 = photosfragmentBinding.viewpager10;
 
         viewpager10.setAdapter(photosPagerAdapter);
         goApi.getPhotos(
@@ -60,6 +62,6 @@ public class PhotosFragment extends Fragment {
                     public void onError(Exception argument0) {}
                 });
 
-        return v;
+        return photosfragmentBinding.getRoot();
     }
 }

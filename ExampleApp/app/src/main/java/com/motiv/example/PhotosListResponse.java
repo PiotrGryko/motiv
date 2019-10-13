@@ -1,10 +1,13 @@
 package com.motiv.example;
 
+import android.widget.ImageView;
 import androidx.annotation.NonNull;
+import androidx.databinding.BindingAdapter;
 import androidx.room.*;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 import com.google.gson.reflect.*;
+import com.squareup.picasso.Picasso;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -55,6 +58,12 @@ public class PhotosListResponse {
 
     public void setMeta(com.motiv.example.Meta meta) {
         this.meta = meta;
+    }
+
+    @BindingAdapter({"bind:imageUrl"})
+    public static void loadImage(ImageView view, java.lang.String url) {
+
+        Picasso.with(view.getContext()).load(url).into(view);
     }
 
     public static PhotosListResponse fromJson(String json) {
