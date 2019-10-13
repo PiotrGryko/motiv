@@ -1,8 +1,13 @@
  
 package com.motiv.example
+import androidx.fragment.app.*
 import com.google.gson.*
 import com.google.gson.annotations.*
 import com.google.gson.reflect.*
+import dagger.*
+import dagger.android.*
+import dagger.android.support.*
+import javax.inject.*
 import retrofit2.*
 import retrofit2.http.*
 

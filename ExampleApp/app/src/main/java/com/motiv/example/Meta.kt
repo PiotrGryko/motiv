@@ -1,30 +1,32 @@
  
 package com.motiv.example
-import android.widget.ImageView
 import androidx.annotation.NonNull
-import androidx.databinding.BindingAdapter
+import androidx.fragment.app.*
+import androidx.room.*
 import com.google.gson.*
 import com.google.gson.annotations.*
 import com.google.gson.reflect.*
-import com.squareup.picasso.Picasso
-import io.realm.*
+import dagger.*
+import dagger.android.*
+import dagger.android.support.*
 import java.util.*
 import java.util.concurrent.*
+import javax.inject.*
+@Entity(tableName = "meta")
+public class Meta {
 
-public open class Meta : RealmObject() {
+    @NonNull
+    @PrimaryKey
 
-    @NonNull private var id: String = UUID.randomUUID().toString()
-
+    private var id: String = UUID.randomUUID().toString()
+    @ColumnInfo(name = "code")
     @SerializedName("code")
-
     private var code: Int = 0
-
+    @ColumnInfo(name = "success")
     @SerializedName("success")
-
     private var success: Boolean = false
-
+    @ColumnInfo(name = "message")
     @SerializedName("message")
-
     private var message: String = ""
 
     fun getId(): String {
@@ -43,9 +45,6 @@ public open class Meta : RealmObject() {
         return this.message
     } fun setMessage(message: String) {
         this.message = message
-    } @BindingAdapter("bind:imageUrl")
-    fun loadImage(view: ImageView, url: String) {
-        Picasso.with(view.getContext()).load(url).into(view)
     } companion object {
         val gson: Gson = Gson()
         fun fromJson(json: String): Meta {

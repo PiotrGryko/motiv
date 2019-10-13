@@ -1,22 +1,26 @@
  
 package com.motiv.example
-import android.widget.ImageView
 import androidx.annotation.NonNull
-import androidx.databinding.BindingAdapter
+import androidx.fragment.app.*
+import androidx.room.*
 import com.google.gson.*
 import com.google.gson.annotations.*
 import com.google.gson.reflect.*
-import com.squareup.picasso.Picasso
-import io.realm.*
+import dagger.*
+import dagger.android.*
+import dagger.android.support.*
 import java.util.*
 import java.util.concurrent.*
+import javax.inject.*
+@Entity(tableName = "authtoken")
+public class AuthToken {
 
-public open class AuthToken : RealmObject() {
+    @NonNull
+    @PrimaryKey
 
-    @NonNull private var id: String = UUID.randomUUID().toString()
-
+    private var id: String = UUID.randomUUID().toString()
+    @ColumnInfo(name = "token")
     @SerializedName("token")
-
     private var token: String = ""
 
     fun getId(): String {
@@ -27,9 +31,6 @@ public open class AuthToken : RealmObject() {
         return this.token
     } fun setToken(token: String) {
         this.token = token
-    } @BindingAdapter("bind:imageUrl")
-    fun loadImage(view: ImageView, url: String) {
-        Picasso.with(view.getContext()).load(url).into(view)
     } companion object {
         val gson: Gson = Gson()
         fun fromJson(json: String): AuthToken {

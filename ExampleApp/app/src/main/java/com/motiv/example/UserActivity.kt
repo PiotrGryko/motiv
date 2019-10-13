@@ -5,16 +5,20 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.*
+import com.bumptech.glide.Glide
 import com.motiv.example.dao.DaoRepository
 import com.motiv.example.dao.LocalStorage
-import com.motiv.example.databinding.UseractivityBinding
-import com.squareup.picasso.Picasso
+import dagger.*
+import dagger.android.*
+import dagger.android.support.*
+import javax.inject.*
 import kotlinx.android.synthetic.main.useractivity.*
 
-public class UserActivity : AppCompatActivity(), UserActivityContract.View {
+public class UserActivity : AppCompatActivity(), UserActivityContract.View, HasSupportFragmentInjector {
 
-    private lateinit var useractivityBinding: UseractivityBinding
+    @Inject
+    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
 
     private lateinit var userArgument: com.motiv.example.User
 
@@ -28,13 +32,17 @@ public class UserActivity : AppCompatActivity(), UserActivityContract.View {
 
     private lateinit var viewPagerFragmentsAdapter: ViewPagerFragmentsAdapter
 
-    private lateinit var goApi: GoApi
+    @Inject
+    lateinit var goApi: GoApi
 
-    private lateinit var authApi: AuthApi
+    @Inject
+    lateinit var authApi: AuthApi
 
-    private var daoRepository: DaoRepository = DaoRepositoryFactory.getInstance(this@UserActivity)
+    @Inject
+    lateinit var daoRepository: DaoRepository
 
-    private lateinit var localStorage: LocalStorage
+    @Inject
+    lateinit var localStorage: LocalStorage
 
     private lateinit var navigationController: NavigationController
 
@@ -46,9 +54,12 @@ public class UserActivity : AppCompatActivity(), UserActivityContract.View {
 
     private lateinit var textview12: TextView
 
-    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+    override fun supportFragmentInjector(): AndroidInjector<Fragment> {
+        return dispatchingAndroidInjector
+    } override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        useractivityBinding = DataBindingUtil.setContentView(this, R.layout.useractivity)
+        setContentView(R.layout.useractivity)
 
         userArgument = com.motiv.example.User.fromJson(getIntent().getStringExtra("userArgument"))
 
@@ -56,18 +67,17 @@ public class UserActivity : AppCompatActivity(), UserActivityContract.View {
         postsAdapter = PostsAdapter()
         photosPagerAdapter = PhotosPagerAdapter()
         viewPagerFragmentsAdapter = ViewPagerFragmentsAdapter(this@UserActivity.getSupportFragmentManager())
-        localStorage = LocalStorage.getInstance(this@UserActivity)
         navigationController = NavigationController(this@UserActivity)
-        goApi = GoApiFactory.getInstance(localStorage)
-        authApi = AuthApiFactory.getInstance(localStorage)
-        linearlayout00 = useractivityBinding.linearlayout00
-        imageview10 = useractivityBinding.imageview10
-        textview11 = useractivityBinding.textview11
-        textview12 = useractivityBinding.textview12
+        linearlayout00 = findViewById<LinearLayout>(R.id.linearlayout00)
+        imageview10 = findViewById<ImageView>(R.id.imageview10)
+        textview11 = findViewById<TextView>(R.id.textview11)
+        textview12 = findViewById<TextView>(R.id.textview12)
 
         presenter = UserActivityPresenter(this@UserActivity, goApi, authApi, daoRepository, localStorage)
 
-        Picasso.with(this@UserActivity).load(userArgument.getLinks().getAvatar().getHref()).into(imageview10)
+        Glide.with(this@UserActivity)
+            .load(userArgument.getLinks().getAvatar().getHref())
+            .into(imageview10)
         textview11.setText(userArgument.getFirst_name())
         textview12.setText(userArgument.getLast_name())
     }
