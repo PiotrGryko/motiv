@@ -1,8 +1,11 @@
 package com.motiv.example;
 
+import android.widget.ImageView;
 import androidx.annotation.NonNull;
+import androidx.databinding.BindingAdapter;
 import androidx.fragment.app.*;
 import androidx.room.*;
+import com.bumptech.glide.Glide;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 import com.google.gson.reflect.*;
@@ -39,6 +42,11 @@ public class AuthToken {
 
     public void setToken(java.lang.String token) {
         this.token = token;
+    }
+
+    @BindingAdapter({"bind:imageUrl"})
+    public static void loadImage(ImageView view, java.lang.String url) {
+        Glide.with(view.getContext()).load(url).into(view);
     }
 
     public static AuthToken fromJson(String json) {

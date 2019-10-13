@@ -3,10 +3,12 @@ package com.motiv.example;
 import android.widget.RelativeLayout;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.*;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.LocalStorage;
+import com.motiv.example.databinding.BottomnavigationdashboardBinding;
 import dagger.*;
 import dagger.android.*;
 import dagger.android.support.*;
@@ -15,6 +17,7 @@ import javax.inject.*;
 public class BottomNavigationDashboard extends AppCompatActivity
         implements HasSupportFragmentInjector {
 
+    private BottomnavigationdashboardBinding bottomnavigationdashboardBinding;
     @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
@@ -39,7 +42,8 @@ public class BottomNavigationDashboard extends AppCompatActivity
 
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.bottomnavigationdashboard);
+        bottomnavigationdashboardBinding =
+                DataBindingUtil.setContentView(this, R.layout.bottomnavigationdashboard);
 
         usersListAdapter = new UsersListAdapter();
         postsAdapter = new PostsAdapter();
@@ -48,8 +52,8 @@ public class BottomNavigationDashboard extends AppCompatActivity
                 new ViewPagerFragmentsAdapter(
                         BottomNavigationDashboard.this.getSupportFragmentManager());
         navigationController = new NavigationController(BottomNavigationDashboard.this);
-        relativelayout00 = (RelativeLayout) findViewById(R.id.relativelayout00);
-        bottomnavigationview11 = (BottomNavigationView) findViewById(R.id.bottomnavigationview11);
+        relativelayout00 = bottomnavigationdashboardBinding.relativelayout00;
+        bottomnavigationview11 = bottomnavigationdashboardBinding.bottomnavigationview11;
 
         bottomnavigationview11.setOnNavigationItemSelectedListener(
                 new com.google.android.material.bottomnavigation.BottomNavigationView
