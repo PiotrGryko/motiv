@@ -1,51 +1,32 @@
 package com.motiv.example;
 
-import android.widget.ImageView;
 import androidx.annotation.NonNull;
-import androidx.databinding.BindingAdapter;
-import androidx.room.*;
+import androidx.fragment.app.*;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 import com.google.gson.reflect.*;
-import com.squareup.picasso.Picasso;
+import dagger.*;
+import dagger.android.*;
+import dagger.android.support.*;
+import io.realm.*;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.inject.*;
 
-@Entity(tableName = "post")
-public class Post {
+public class Post extends RealmObject {
 
     private static final Gson gson = new Gson();
-    @NonNull @PrimaryKey private java.lang.String id = UUID.randomUUID().toString();
+    @NonNull private java.lang.String id = UUID.randomUUID().toString();
 
-    @ColumnInfo(name = "resultOwnerId")
-    @ForeignKey(
-        entity = com.motiv.example.PostsListResponse.class,
-        parentColumns = "id",
-        childColumns = "resultOwnerId"
-    )
-    private java.lang.String resultOwnerId;
-
-    @ColumnInfo(name = "linksId")
-    @ForeignKey(
-        entity = com.motiv.example.Links.class,
-        parentColumns = "id",
-        childColumns = "linksId"
-    )
-    private java.lang.String linksId;
-
-    @ColumnInfo(name = "user_id")
     @SerializedName("user_id")
     private java.lang.String user_id;
 
-    @Ignore
     @SerializedName("_links")
     private com.motiv.example.Links links;
 
-    @ColumnInfo(name = "title")
     @SerializedName("title")
     private java.lang.String title;
 
-    @ColumnInfo(name = "body")
     @SerializedName("body")
     private java.lang.String body;
 
@@ -94,12 +75,6 @@ public class Post {
         this.body = body;
     }
 
-    @BindingAdapter({"bind:imageUrl"})
-    public static void loadImage(ImageView view, java.lang.String url) {
-
-        Picasso.with(view.getContext()).load(url).into(view);
-    }
-
     public static Post fromJson(String json) {
         return gson.fromJson(json, Post.class);
     }
@@ -114,21 +89,5 @@ public class Post {
 
     public static Post[] fromJsonArray(String array) {
         return gson.fromJson(array, Post[].class);
-    }
-
-    public java.lang.String getResultOwnerId() {
-        return this.resultOwnerId;
-    };
-
-    public void setResultOwnerId(java.lang.String resultOwnerId) {
-        this.resultOwnerId = resultOwnerId;
-    }
-
-    public java.lang.String getLinksId() {
-        return this.linksId;
-    };
-
-    public void setLinksId(java.lang.String linksId) {
-        this.linksId = linksId;
     }
 }

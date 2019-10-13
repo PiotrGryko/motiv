@@ -1,23 +1,23 @@
 package com.motiv.example;
 
-import android.widget.ImageView;
 import androidx.annotation.NonNull;
-import androidx.databinding.BindingAdapter;
-import androidx.room.*;
+import androidx.fragment.app.*;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 import com.google.gson.reflect.*;
-import com.squareup.picasso.Picasso;
+import dagger.*;
+import dagger.android.*;
+import dagger.android.support.*;
+import io.realm.*;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.inject.*;
 
-@Entity(tableName = "link")
-public class Link {
+public class Link extends RealmObject {
 
     private static final Gson gson = new Gson();
-    @NonNull @PrimaryKey private java.lang.String id = UUID.randomUUID().toString();
+    @NonNull private java.lang.String id = UUID.randomUUID().toString();
 
-    @ColumnInfo(name = "href")
     @SerializedName("href")
     private java.lang.String href;
 
@@ -37,12 +37,6 @@ public class Link {
 
     public void setHref(java.lang.String href) {
         this.href = href;
-    }
-
-    @BindingAdapter({"bind:imageUrl"})
-    public static void loadImage(ImageView view, java.lang.String url) {
-
-        Picasso.with(view.getContext()).load(url).into(view);
     }
 
     public static Link fromJson(String json) {

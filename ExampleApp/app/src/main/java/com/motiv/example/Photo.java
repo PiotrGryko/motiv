@@ -1,55 +1,35 @@
 package com.motiv.example;
 
-import android.widget.ImageView;
 import androidx.annotation.NonNull;
-import androidx.databinding.BindingAdapter;
-import androidx.room.*;
+import androidx.fragment.app.*;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 import com.google.gson.reflect.*;
-import com.squareup.picasso.Picasso;
+import dagger.*;
+import dagger.android.*;
+import dagger.android.support.*;
+import io.realm.*;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.inject.*;
 
-@Entity(tableName = "photo")
-public class Photo {
+public class Photo extends RealmObject {
 
     private static final Gson gson = new Gson();
-    @NonNull @PrimaryKey private java.lang.String id = UUID.randomUUID().toString();
+    @NonNull private java.lang.String id = UUID.randomUUID().toString();
 
-    @ColumnInfo(name = "resultOwnerId")
-    @ForeignKey(
-        entity = com.motiv.example.PhotosListResponse.class,
-        parentColumns = "id",
-        childColumns = "resultOwnerId"
-    )
-    private java.lang.String resultOwnerId;
-
-    @ColumnInfo(name = "linksId")
-    @ForeignKey(
-        entity = com.motiv.example.Links.class,
-        parentColumns = "id",
-        childColumns = "linksId"
-    )
-    private java.lang.String linksId;
-
-    @ColumnInfo(name = "thumbnail")
     @SerializedName("thumbnail")
     private java.lang.String thumbnail;
 
-    @Ignore
     @SerializedName("_links")
     private com.motiv.example.Links links;
 
-    @ColumnInfo(name = "album_id")
     @SerializedName("album_id")
     private java.lang.String album_id;
 
-    @ColumnInfo(name = "title")
     @SerializedName("title")
     private java.lang.String title;
 
-    @ColumnInfo(name = "url")
     @SerializedName("url")
     private java.lang.String url;
 
@@ -107,12 +87,6 @@ public class Photo {
         this.url = url;
     }
 
-    @BindingAdapter({"bind:imageUrl"})
-    public static void loadImage(ImageView view, java.lang.String url) {
-
-        Picasso.with(view.getContext()).load(url).into(view);
-    }
-
     public static Photo fromJson(String json) {
         return gson.fromJson(json, Photo.class);
     }
@@ -127,21 +101,5 @@ public class Photo {
 
     public static Photo[] fromJsonArray(String array) {
         return gson.fromJson(array, Photo[].class);
-    }
-
-    public java.lang.String getResultOwnerId() {
-        return this.resultOwnerId;
-    };
-
-    public void setResultOwnerId(java.lang.String resultOwnerId) {
-        this.resultOwnerId = resultOwnerId;
-    }
-
-    public java.lang.String getLinksId() {
-        return this.linksId;
-    };
-
-    public void setLinksId(java.lang.String linksId) {
-        this.linksId = linksId;
     }
 }

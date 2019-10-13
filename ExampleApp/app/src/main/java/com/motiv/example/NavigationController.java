@@ -4,7 +4,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.*;
 import androidx.navigation.Navigation;
+import dagger.*;
+import dagger.android.*;
+import dagger.android.support.*;
+import javax.inject.*;
 
 public class NavigationController {
 

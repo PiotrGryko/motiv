@@ -1,55 +1,29 @@
 package com.motiv.example;
 
-import android.widget.ImageView;
 import androidx.annotation.NonNull;
-import androidx.databinding.BindingAdapter;
-import androidx.room.*;
+import androidx.fragment.app.*;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 import com.google.gson.reflect.*;
-import com.squareup.picasso.Picasso;
+import dagger.*;
+import dagger.android.*;
+import dagger.android.support.*;
+import io.realm.*;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.inject.*;
 
-@Entity(tableName = "links")
-public class Links {
+public class Links extends RealmObject {
 
     private static final Gson gson = new Gson();
-    @NonNull @PrimaryKey private java.lang.String id = UUID.randomUUID().toString();
+    @NonNull private java.lang.String id = UUID.randomUUID().toString();
 
-    @ColumnInfo(name = "editId")
-    @ForeignKey(
-        entity = com.motiv.example.Link.class,
-        parentColumns = "id",
-        childColumns = "editId"
-    )
-    private java.lang.String editId;
-
-    @ColumnInfo(name = "selfId")
-    @ForeignKey(
-        entity = com.motiv.example.Link.class,
-        parentColumns = "id",
-        childColumns = "selfId"
-    )
-    private java.lang.String selfId;
-
-    @ColumnInfo(name = "avatarId")
-    @ForeignKey(
-        entity = com.motiv.example.Link.class,
-        parentColumns = "id",
-        childColumns = "avatarId"
-    )
-    private java.lang.String avatarId;
-
-    @Ignore
     @SerializedName("edit")
     private com.motiv.example.Link edit;
 
-    @Ignore
     @SerializedName("self")
     private com.motiv.example.Link self;
 
-    @Ignore
     @SerializedName("avatar")
     private com.motiv.example.Link avatar;
 
@@ -89,12 +63,6 @@ public class Links {
         this.avatar = avatar;
     }
 
-    @BindingAdapter({"bind:imageUrl"})
-    public static void loadImage(ImageView view, java.lang.String url) {
-
-        Picasso.with(view.getContext()).load(url).into(view);
-    }
-
     public static Links fromJson(String json) {
         return gson.fromJson(json, Links.class);
     }
@@ -109,29 +77,5 @@ public class Links {
 
     public static Links[] fromJsonArray(String array) {
         return gson.fromJson(array, Links[].class);
-    }
-
-    public java.lang.String getEditId() {
-        return this.editId;
-    };
-
-    public void setEditId(java.lang.String editId) {
-        this.editId = editId;
-    }
-
-    public java.lang.String getSelfId() {
-        return this.selfId;
-    };
-
-    public void setSelfId(java.lang.String selfId) {
-        this.selfId = selfId;
-    }
-
-    public java.lang.String getAvatarId() {
-        return this.avatarId;
-    };
-
-    public void setAvatarId(java.lang.String avatarId) {
-        this.avatarId = avatarId;
     }
 }

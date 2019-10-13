@@ -1,35 +1,26 @@
 package com.motiv.example;
 
-import android.widget.ImageView;
 import androidx.annotation.NonNull;
-import androidx.databinding.BindingAdapter;
-import androidx.room.*;
+import androidx.fragment.app.*;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 import com.google.gson.reflect.*;
-import com.squareup.picasso.Picasso;
+import dagger.*;
+import dagger.android.*;
+import dagger.android.support.*;
+import io.realm.*;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.inject.*;
 
-@Entity(tableName = "usersresponse")
-public class UsersResponse {
+public class UsersResponse extends RealmObject {
 
     private static final Gson gson = new Gson();
-    @NonNull @PrimaryKey private java.lang.String id = UUID.randomUUID().toString();
+    @NonNull private java.lang.String id = UUID.randomUUID().toString();
 
-    @ColumnInfo(name = "metaId")
-    @ForeignKey(
-        entity = com.motiv.example.Meta.class,
-        parentColumns = "id",
-        childColumns = "metaId"
-    )
-    private java.lang.String metaId;
-
-    @Ignore
     @SerializedName("result")
-    private java.util.List<com.motiv.example.User> result;
+    private RealmList<com.motiv.example.User> result;
 
-    @Ignore
     @SerializedName("_meta")
     private com.motiv.example.Meta meta;
 
@@ -42,12 +33,12 @@ public class UsersResponse {
         this.id = id;
     }
 
-    public java.util.List<com.motiv.example.User> getResult() {
+    public RealmList<com.motiv.example.User> getResult() {
 
         return this.result;
     }
 
-    public void setResult(java.util.List<com.motiv.example.User> result) {
+    public void setResult(RealmList<com.motiv.example.User> result) {
         this.result = result;
     }
 
@@ -58,12 +49,6 @@ public class UsersResponse {
 
     public void setMeta(com.motiv.example.Meta meta) {
         this.meta = meta;
-    }
-
-    @BindingAdapter({"bind:imageUrl"})
-    public static void loadImage(ImageView view, java.lang.String url) {
-
-        Picasso.with(view.getContext()).load(url).into(view);
     }
 
     public static UsersResponse fromJson(String json) {
@@ -80,13 +65,5 @@ public class UsersResponse {
 
     public static UsersResponse[] fromJsonArray(String array) {
         return gson.fromJson(array, UsersResponse[].class);
-    }
-
-    public java.lang.String getMetaId() {
-        return this.metaId;
-    };
-
-    public void setMetaId(java.lang.String metaId) {
-        this.metaId = metaId;
     }
 }

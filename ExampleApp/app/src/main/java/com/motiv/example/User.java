@@ -1,75 +1,50 @@
 package com.motiv.example;
 
-import android.widget.ImageView;
 import androidx.annotation.NonNull;
-import androidx.databinding.BindingAdapter;
-import androidx.room.*;
+import androidx.fragment.app.*;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 import com.google.gson.reflect.*;
-import com.squareup.picasso.Picasso;
+import dagger.*;
+import dagger.android.*;
+import dagger.android.support.*;
+import io.realm.*;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.inject.*;
 
-@Entity(tableName = "user")
-public class User {
+public class User extends RealmObject {
 
     private static final Gson gson = new Gson();
-    @NonNull @PrimaryKey private java.lang.String id = UUID.randomUUID().toString();
+    @NonNull private java.lang.String id = UUID.randomUUID().toString();
 
-    @ColumnInfo(name = "linksId")
-    @ForeignKey(
-        entity = com.motiv.example.Links.class,
-        parentColumns = "id",
-        childColumns = "linksId"
-    )
-    private java.lang.String linksId;
-
-    @ColumnInfo(name = "resultOwnerId")
-    @ForeignKey(
-        entity = com.motiv.example.UsersResponse.class,
-        parentColumns = "id",
-        childColumns = "resultOwnerId"
-    )
-    private java.lang.String resultOwnerId;
-
-    @ColumnInfo(name = "website")
     @SerializedName("website")
     private java.lang.String website;
 
-    @ColumnInfo(name = "address")
     @SerializedName("address")
     private java.lang.String address;
 
-    @ColumnInfo(name = "gender")
     @SerializedName("gender")
     private java.lang.String gender;
 
-    @ColumnInfo(name = "phone")
     @SerializedName("phone")
     private java.lang.String phone;
 
-    @Ignore
     @SerializedName("_links")
     private com.motiv.example.Links links;
 
-    @ColumnInfo(name = "dob")
     @SerializedName("dob")
     private java.lang.String dob;
 
-    @ColumnInfo(name = "last_name")
     @SerializedName("last_name")
     private java.lang.String last_name;
 
-    @ColumnInfo(name = "first_name")
     @SerializedName("first_name")
     private java.lang.String first_name;
 
-    @ColumnInfo(name = "email")
     @SerializedName("email")
     private java.lang.String email;
 
-    @ColumnInfo(name = "status")
     @SerializedName("status")
     private java.lang.String status;
 
@@ -172,12 +147,6 @@ public class User {
         this.status = status;
     }
 
-    @BindingAdapter({"bind:imageUrl"})
-    public static void loadImage(ImageView view, java.lang.String url) {
-
-        Picasso.with(view.getContext()).load(url).into(view);
-    }
-
     public static User fromJson(String json) {
         return gson.fromJson(json, User.class);
     }
@@ -192,21 +161,5 @@ public class User {
 
     public static User[] fromJsonArray(String array) {
         return gson.fromJson(array, User[].class);
-    }
-
-    public java.lang.String getLinksId() {
-        return this.linksId;
-    };
-
-    public void setLinksId(java.lang.String linksId) {
-        this.linksId = linksId;
-    }
-
-    public java.lang.String getResultOwnerId() {
-        return this.resultOwnerId;
-    };
-
-    public void setResultOwnerId(java.lang.String resultOwnerId) {
-        this.resultOwnerId = resultOwnerId;
     }
 }

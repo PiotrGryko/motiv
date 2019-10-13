@@ -9,21 +9,24 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.*;
 import androidx.viewpager.widget.ViewPager;
 import com.motiv.example.dao.DaoRepository;
-import com.motiv.example.dao.DaoRepositoryFactory;
 import com.motiv.example.dao.LocalStorage;
-import com.motiv.example.databinding.PhotosfragmentBinding;
+import dagger.*;
+import dagger.android.*;
+import dagger.android.support.*;
+import javax.inject.*;
 
-public class PhotosFragment extends Fragment {
+public class PhotosFragment extends Fragment implements PhotosFragmentContract.View {
 
-    private PhotosfragmentBinding photosfragmentBinding;
+    @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
+    private PhotosFragmentContract.Presenter presenter;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
     private PhotosPagerAdapter photosPagerAdapter;
     private ViewPagerFragmentsAdapter viewPagerFragmentsAdapter;
-    private GoApi goApi;
-    private AuthApi authApi;
-    private DaoRepository daoRepository;
-    private LocalStorage localStorage;
+    @Inject GoApi goApi;
+    @Inject AuthApi authApi;
+    @Inject DaoRepository daoRepository;
+    @Inject LocalStorage localStorage;
     private NavigationController navigationController;
     private LinearLayout linearlayout00;
     private ViewPager viewpager10;
@@ -32,9 +35,9 @@ public class PhotosFragment extends Fragment {
     public View onCreateView(
             LayoutInflater inflater,
             @Nullable ViewGroup parent,
-            @Nullable Bundle savedInstanceState) {
+            final @Nullable Bundle savedInstanceState) {
 
-        photosfragmentBinding = PhotosfragmentBinding.inflate(inflater);
+        View v = inflater.inflate(R.layout.photosfragment, parent, false);
 
         usersListAdapter = new UsersListAdapter();
         postsAdapter = new PostsAdapter();
@@ -42,26 +45,27 @@ public class PhotosFragment extends Fragment {
         viewPagerFragmentsAdapter =
                 new ViewPagerFragmentsAdapter(
                         PhotosFragment.this.getActivity().getSupportFragmentManager());
-        daoRepository = DaoRepositoryFactory.getInstance(PhotosFragment.this.getActivity());
-        localStorage = LocalStorage.getInstance(PhotosFragment.this.getActivity());
         navigationController = new NavigationController(PhotosFragment.this.getActivity());
-        goApi = GoApiFactory.getInstance(localStorage);
-        authApi = AuthApiFactory.getInstance(localStorage);
-        linearlayout00 = photosfragmentBinding.linearlayout00;
-        viewpager10 = photosfragmentBinding.viewpager10;
+        linearlayout00 = (LinearLayout) v.findViewById(R.id.linearlayout00);
+        viewpager10 = (ViewPager) v.findViewById(R.id.viewpager10);
+        presenter =
+                new PhotosFragmentPresenter(
+                        PhotosFragment.this, goApi, authApi, daoRepository, localStorage);
 
         viewpager10.setAdapter(photosPagerAdapter);
-        goApi.getPhotos(
-                new com.motiv.example.OnResponseListener<com.motiv.example.PhotosListResponse>() {
-                    @Override
-                    public void onSuccess(com.motiv.example.PhotosListResponse argument0) {
-                        photosPagerAdapter.setData(argument0.getResult());
-                    }
+        presenter.goApigetPhotos();
 
-                    @Override
-                    public void onError(Exception argument0) {}
-                });
+        return v;
+    }
 
-        return photosfragmentBinding.getRoot();
+    @Override
+    public void photosPagerAdaptersetData(java.util.List<com.motiv.example.Photo> arg0) {
+        photosPagerAdapter.setData(arg0);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        AndroidSupportInjection.inject(this);
     }
 }

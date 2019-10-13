@@ -1,860 +1,695 @@
 package com.motiv.example.dao;
 
-import android.os.Handler;
+import androidx.fragment.app.*;
 import com.motiv.example.AuthToken;
 import com.motiv.example.Link;
 import com.motiv.example.Links;
-import com.motiv.example.LinksWithReferences;
 import com.motiv.example.Meta;
 import com.motiv.example.OnResponseListener;
 import com.motiv.example.Photo;
-import com.motiv.example.PhotoWithReferences;
 import com.motiv.example.PhotosListResponse;
-import com.motiv.example.PhotosListResponseWithReferences;
 import com.motiv.example.Post;
-import com.motiv.example.PostWithReferences;
 import com.motiv.example.PostsListResponse;
-import com.motiv.example.PostsListResponseWithReferences;
 import com.motiv.example.User;
 import com.motiv.example.UserResponse;
-import com.motiv.example.UserResponseWithReferences;
-import com.motiv.example.UserWithReferences;
 import com.motiv.example.UsersResponse;
-import com.motiv.example.UsersResponseWithReferences;
+import dagger.*;
+import dagger.android.*;
+import dagger.android.support.*;
+import io.realm.*;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import javax.inject.*;
 
 public class DaoRepository {
 
-    private MyRoomDatabase myRoomDatabase;
-    private Handler handler;
-    private Executor executor;
+    private Realm myDatabase;
 
-    public DaoRepository(Handler handler, MyRoomDatabase myRoomDatabase, Executor executor) {
-        this.handler = handler;
-        this.myRoomDatabase = myRoomDatabase;
-        this.executor = executor;
-    }
-
-    public void saveUser(
-            final com.motiv.example.User user,
-            final com.motiv.example.OnResponseListener<com.motiv.example.User> onResponseListener) {
-        updateUser(user);
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        myRoomDatabase.userDao().saveUser(user);
-                        passSuccessResultToUi(user, onResponseListener);
-                    }
-                });
+    public DaoRepository(Realm myDatabase) {
+        this.myDatabase = myDatabase;
     }
 
     public void saveUsers(
             final java.util.List<com.motiv.example.User> users,
-            final com.motiv.example.OnResponseListener<java.util.List<com.motiv.example.User>>
-                    onResponseListener) {
-        updateUsers(users);
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        myRoomDatabase.userDao().saveUsers(users);
-                        passSuccessResultToUi(users, onResponseListener);
-                    }
-                });
-    }
+            final OnResponseListener<java.util.List<com.motiv.example.User>> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
 
-    public void loadUsers(
-            final com.motiv.example.OnResponseListener<java.util.List<com.motiv.example.User>>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
                     @Override
-                    public void run() {
-                        final List<UserWithReferences> resultWithReferences =
-                                myRoomDatabase.userDao().getUsers();
-                        List<User> result = new ArrayList<>();
-                        for (UserWithReferences withReference : resultWithReferences) {
-                            result.add(withReference.getUser());
+                    public void execute(Realm realm) {
+
+                        for (User user : users) {
+                            realm.copyToRealm(user);
                         }
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
 
-                        passSuccessResultToUi(result, onResponseListener);
+                    @Override
+                    public void onSuccess() {
+
+                        onResponseListener.onSuccess(users);
                     }
                 });
     }
 
     public void loadUser(
             final java.lang.String id,
-            final com.motiv.example.OnResponseListener<com.motiv.example.User> onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        final UserWithReferences resultWithReference =
-                                myRoomDatabase.userDao().getUser(id);
-                        passSuccessResultToUi(resultWithReference.getUser(), onResponseListener);
-                    }
-                });
+            final OnResponseListener<com.motiv.example.User> onResponseListener) {
+        User realmResponse = myDatabase.where(User.class).equalTo("id", id).findFirst();
+        User result = myDatabase.copyFromRealm(realmResponse);
+        onResponseListener.onSuccess(result);
     }
 
-    public void saveLinks(
-            final com.motiv.example.Links links,
-            final com.motiv.example.OnResponseListener<com.motiv.example.Links>
-                    onResponseListener) {
-        updateLinks(links);
-        executor.execute(
-                new Runnable() {
+    public void loadUsers(
+            final OnResponseListener<java.util.List<com.motiv.example.User>> onResponseListener) {
+        RealmResults<User> result = myDatabase.where(User.class).findAll();
+        final List<User> users = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            users.add(myDatabase.copyFromRealm(result.get(i)));
+        }
+        onResponseListener.onSuccess(users);
+    }
+
+    public void saveUser(final User user, final OnResponseListener<User> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
                     @Override
-                    public void run() {
-                        myRoomDatabase.linksDao().saveLinks(links);
-                        passSuccessResultToUi(links, onResponseListener);
+                    public void execute(Realm realm) {
+                        realm.copyToRealm(user);
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        onResponseListener.onSuccess(user);
                     }
                 });
     }
 
     public void saveLinkss(
             final java.util.List<com.motiv.example.Links> linkss,
-            final com.motiv.example.OnResponseListener<java.util.List<com.motiv.example.Links>>
-                    onResponseListener) {
-        updateLinkss(linkss);
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        myRoomDatabase.linksDao().saveLinkss(linkss);
-                        passSuccessResultToUi(linkss, onResponseListener);
-                    }
-                });
-    }
+            final OnResponseListener<java.util.List<com.motiv.example.Links>> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
 
-    public void loadLinkss(
-            final com.motiv.example.OnResponseListener<java.util.List<com.motiv.example.Links>>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
                     @Override
-                    public void run() {
-                        final List<LinksWithReferences> resultWithReferences =
-                                myRoomDatabase.linksDao().getLinkss();
-                        List<Links> result = new ArrayList<>();
-                        for (LinksWithReferences withReference : resultWithReferences) {
-                            result.add(withReference.getLinks());
+                    public void execute(Realm realm) {
+
+                        for (Links links : linkss) {
+                            realm.copyToRealm(links);
                         }
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
 
-                        passSuccessResultToUi(result, onResponseListener);
+                    @Override
+                    public void onSuccess() {
+
+                        onResponseListener.onSuccess(linkss);
                     }
                 });
     }
 
     public void loadLinks(
             final java.lang.String id,
-            final com.motiv.example.OnResponseListener<com.motiv.example.Links>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        final LinksWithReferences resultWithReference =
-                                myRoomDatabase.linksDao().getLinks(id);
-                        passSuccessResultToUi(resultWithReference.getLinks(), onResponseListener);
-                    }
-                });
+            final OnResponseListener<com.motiv.example.Links> onResponseListener) {
+        Links realmResponse = myDatabase.where(Links.class).equalTo("id", id).findFirst();
+        Links result = myDatabase.copyFromRealm(realmResponse);
+        onResponseListener.onSuccess(result);
     }
 
-    public void saveLink(
-            final com.motiv.example.Link link,
-            final com.motiv.example.OnResponseListener<com.motiv.example.Link> onResponseListener) {
-        executor.execute(
-                new Runnable() {
+    public void loadLinkss(
+            final OnResponseListener<java.util.List<com.motiv.example.Links>> onResponseListener) {
+        RealmResults<Links> result = myDatabase.where(Links.class).findAll();
+        final List<Links> linkss = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            linkss.add(myDatabase.copyFromRealm(result.get(i)));
+        }
+        onResponseListener.onSuccess(linkss);
+    }
+
+    public void saveLinks(final Links links, final OnResponseListener<Links> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
                     @Override
-                    public void run() {
-                        myRoomDatabase.linkDao().saveLink(link);
-                        passSuccessResultToUi(link, onResponseListener);
+                    public void execute(Realm realm) {
+                        realm.copyToRealm(links);
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        onResponseListener.onSuccess(links);
                     }
                 });
     }
 
     public void saveLinks(
             final java.util.List<com.motiv.example.Link> links,
-            final com.motiv.example.OnResponseListener<java.util.List<com.motiv.example.Link>>
-                    onResponseListener) {
+            final OnResponseListener<java.util.List<com.motiv.example.Link>> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
 
-        executor.execute(
-                new Runnable() {
                     @Override
-                    public void run() {
-                        myRoomDatabase.linkDao().saveLinks(links);
-                        passSuccessResultToUi(links, onResponseListener);
+                    public void execute(Realm realm) {
+
+                        for (Link link : links) {
+                            realm.copyToRealm(link);
+                        }
                     }
-                });
-    }
+                },
+                new Realm.Transaction.OnSuccess() {
 
-    public void loadLinks(
-            final com.motiv.example.OnResponseListener<java.util.List<com.motiv.example.Link>>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
                     @Override
-                    public void run() {
-                        final List<Link> result = myRoomDatabase.linkDao().getLinks();
-                        passSuccessResultToUi(result, onResponseListener);
+                    public void onSuccess() {
+
+                        onResponseListener.onSuccess(links);
                     }
                 });
     }
 
     public void loadLink(
             final java.lang.String id,
-            final com.motiv.example.OnResponseListener<com.motiv.example.Link> onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        final Link result = myRoomDatabase.linkDao().getLink(id);
-                        passSuccessResultToUi(result, onResponseListener);
-                    }
-                });
+            final OnResponseListener<com.motiv.example.Link> onResponseListener) {
+        Link realmResponse = myDatabase.where(Link.class).equalTo("id", id).findFirst();
+        Link result = myDatabase.copyFromRealm(realmResponse);
+        onResponseListener.onSuccess(result);
     }
 
-    public void saveUserResponse(
-            final com.motiv.example.UserResponse userResponse,
-            final com.motiv.example.OnResponseListener<com.motiv.example.UserResponse>
-                    onResponseListener) {
-        updateUserResponse(userResponse);
-        executor.execute(
-                new Runnable() {
+    public void loadLinks(
+            final OnResponseListener<java.util.List<com.motiv.example.Link>> onResponseListener) {
+        RealmResults<Link> result = myDatabase.where(Link.class).findAll();
+        final List<Link> links = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            links.add(myDatabase.copyFromRealm(result.get(i)));
+        }
+        onResponseListener.onSuccess(links);
+    }
+
+    public void saveLink(final Link link, final OnResponseListener<Link> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
                     @Override
-                    public void run() {
-                        myRoomDatabase.userResponseDao().saveUserResponse(userResponse);
-                        passSuccessResultToUi(userResponse, onResponseListener);
+                    public void execute(Realm realm) {
+                        realm.copyToRealm(link);
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        onResponseListener.onSuccess(link);
                     }
                 });
     }
 
     public void saveUserResponses(
             final java.util.List<com.motiv.example.UserResponse> userResponses,
-            final com.motiv.example.OnResponseListener<
-                            java.util.List<com.motiv.example.UserResponse>>
+            final OnResponseListener<java.util.List<com.motiv.example.UserResponse>>
                     onResponseListener) {
-        updateUserResponses(userResponses);
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        myRoomDatabase.userResponseDao().saveUserResponses(userResponses);
-                        passSuccessResultToUi(userResponses, onResponseListener);
-                    }
-                });
-    }
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
 
-    public void loadUserResponses(
-            final com.motiv.example.OnResponseListener<
-                            java.util.List<com.motiv.example.UserResponse>>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
                     @Override
-                    public void run() {
-                        final List<UserResponseWithReferences> resultWithReferences =
-                                myRoomDatabase.userResponseDao().getUserResponses();
-                        List<UserResponse> result = new ArrayList<>();
-                        for (UserResponseWithReferences withReference : resultWithReferences) {
-                            result.add(withReference.getUserResponse());
+                    public void execute(Realm realm) {
+
+                        for (UserResponse userResponse : userResponses) {
+                            realm.copyToRealm(userResponse);
                         }
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
 
-                        passSuccessResultToUi(result, onResponseListener);
+                    @Override
+                    public void onSuccess() {
+
+                        onResponseListener.onSuccess(userResponses);
                     }
                 });
     }
 
     public void loadUserResponse(
             final java.lang.String id,
-            final com.motiv.example.OnResponseListener<com.motiv.example.UserResponse>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        final UserResponseWithReferences resultWithReference =
-                                myRoomDatabase.userResponseDao().getUserResponse(id);
-                        passSuccessResultToUi(
-                                resultWithReference.getUserResponse(), onResponseListener);
-                    }
-                });
+            final OnResponseListener<com.motiv.example.UserResponse> onResponseListener) {
+        UserResponse realmResponse =
+                myDatabase.where(UserResponse.class).equalTo("id", id).findFirst();
+        UserResponse result = myDatabase.copyFromRealm(realmResponse);
+        onResponseListener.onSuccess(result);
     }
 
-    public void saveMeta(
-            final com.motiv.example.Meta meta,
-            final com.motiv.example.OnResponseListener<com.motiv.example.Meta> onResponseListener) {
-        executor.execute(
-                new Runnable() {
+    public void loadUserResponses(
+            final OnResponseListener<java.util.List<com.motiv.example.UserResponse>>
+                    onResponseListener) {
+        RealmResults<UserResponse> result = myDatabase.where(UserResponse.class).findAll();
+        final List<UserResponse> userResponses = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            userResponses.add(myDatabase.copyFromRealm(result.get(i)));
+        }
+        onResponseListener.onSuccess(userResponses);
+    }
+
+    public void saveUserResponse(
+            final UserResponse userResponse,
+            final OnResponseListener<UserResponse> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
                     @Override
-                    public void run() {
-                        myRoomDatabase.metaDao().saveMeta(meta);
-                        passSuccessResultToUi(meta, onResponseListener);
+                    public void execute(Realm realm) {
+                        realm.copyToRealm(userResponse);
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        onResponseListener.onSuccess(userResponse);
                     }
                 });
     }
 
     public void saveMetas(
             final java.util.List<com.motiv.example.Meta> metas,
-            final com.motiv.example.OnResponseListener<java.util.List<com.motiv.example.Meta>>
-                    onResponseListener) {
+            final OnResponseListener<java.util.List<com.motiv.example.Meta>> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
 
-        executor.execute(
-                new Runnable() {
                     @Override
-                    public void run() {
-                        myRoomDatabase.metaDao().saveMetas(metas);
-                        passSuccessResultToUi(metas, onResponseListener);
+                    public void execute(Realm realm) {
+
+                        for (Meta meta : metas) {
+                            realm.copyToRealm(meta);
+                        }
                     }
-                });
-    }
+                },
+                new Realm.Transaction.OnSuccess() {
 
-    public void loadMetas(
-            final com.motiv.example.OnResponseListener<java.util.List<com.motiv.example.Meta>>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
                     @Override
-                    public void run() {
-                        final List<Meta> result = myRoomDatabase.metaDao().getMetas();
-                        passSuccessResultToUi(result, onResponseListener);
+                    public void onSuccess() {
+
+                        onResponseListener.onSuccess(metas);
                     }
                 });
     }
 
     public void loadMeta(
             final java.lang.String id,
-            final com.motiv.example.OnResponseListener<com.motiv.example.Meta> onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        final Meta result = myRoomDatabase.metaDao().getMeta(id);
-                        passSuccessResultToUi(result, onResponseListener);
-                    }
-                });
+            final OnResponseListener<com.motiv.example.Meta> onResponseListener) {
+        Meta realmResponse = myDatabase.where(Meta.class).equalTo("id", id).findFirst();
+        Meta result = myDatabase.copyFromRealm(realmResponse);
+        onResponseListener.onSuccess(result);
     }
 
-    public void saveUsersResponse(
-            final com.motiv.example.UsersResponse usersResponse,
-            final com.motiv.example.OnResponseListener<com.motiv.example.UsersResponse>
-                    onResponseListener) {
-        updateUsersResponse(usersResponse);
-        executor.execute(
-                new Runnable() {
+    public void loadMetas(
+            final OnResponseListener<java.util.List<com.motiv.example.Meta>> onResponseListener) {
+        RealmResults<Meta> result = myDatabase.where(Meta.class).findAll();
+        final List<Meta> metas = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            metas.add(myDatabase.copyFromRealm(result.get(i)));
+        }
+        onResponseListener.onSuccess(metas);
+    }
+
+    public void saveMeta(final Meta meta, final OnResponseListener<Meta> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
                     @Override
-                    public void run() {
-                        myRoomDatabase.usersResponseDao().saveUsersResponse(usersResponse);
-                        passSuccessResultToUi(usersResponse, onResponseListener);
+                    public void execute(Realm realm) {
+                        realm.copyToRealm(meta);
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        onResponseListener.onSuccess(meta);
                     }
                 });
     }
 
     public void saveUsersResponses(
             final java.util.List<com.motiv.example.UsersResponse> usersResponses,
-            final com.motiv.example.OnResponseListener<
-                            java.util.List<com.motiv.example.UsersResponse>>
+            final OnResponseListener<java.util.List<com.motiv.example.UsersResponse>>
                     onResponseListener) {
-        updateUsersResponses(usersResponses);
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        myRoomDatabase.usersResponseDao().saveUsersResponses(usersResponses);
-                        passSuccessResultToUi(usersResponses, onResponseListener);
-                    }
-                });
-    }
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
 
-    public void loadUsersResponses(
-            final com.motiv.example.OnResponseListener<
-                            java.util.List<com.motiv.example.UsersResponse>>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
                     @Override
-                    public void run() {
-                        final List<UsersResponseWithReferences> resultWithReferences =
-                                myRoomDatabase.usersResponseDao().getUsersResponses();
-                        List<UsersResponse> result = new ArrayList<>();
-                        for (UsersResponseWithReferences withReference : resultWithReferences) {
-                            result.add(withReference.getUsersResponse());
+                    public void execute(Realm realm) {
+
+                        for (UsersResponse usersResponse : usersResponses) {
+                            realm.copyToRealm(usersResponse);
                         }
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
 
-                        passSuccessResultToUi(result, onResponseListener);
+                    @Override
+                    public void onSuccess() {
+
+                        onResponseListener.onSuccess(usersResponses);
                     }
                 });
     }
 
     public void loadUsersResponse(
             final java.lang.String id,
-            final com.motiv.example.OnResponseListener<com.motiv.example.UsersResponse>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        final UsersResponseWithReferences resultWithReference =
-                                myRoomDatabase.usersResponseDao().getUsersResponse(id);
-                        passSuccessResultToUi(
-                                resultWithReference.getUsersResponse(), onResponseListener);
-                    }
-                });
+            final OnResponseListener<com.motiv.example.UsersResponse> onResponseListener) {
+        UsersResponse realmResponse =
+                myDatabase.where(UsersResponse.class).equalTo("id", id).findFirst();
+        UsersResponse result = myDatabase.copyFromRealm(realmResponse);
+        onResponseListener.onSuccess(result);
     }
 
-    public void savePostsListResponse(
-            final com.motiv.example.PostsListResponse postsListResponse,
-            final com.motiv.example.OnResponseListener<com.motiv.example.PostsListResponse>
+    public void loadUsersResponses(
+            final OnResponseListener<java.util.List<com.motiv.example.UsersResponse>>
                     onResponseListener) {
-        updatePostsListResponse(postsListResponse);
-        executor.execute(
-                new Runnable() {
+        RealmResults<UsersResponse> result = myDatabase.where(UsersResponse.class).findAll();
+        final List<UsersResponse> usersResponses = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            usersResponses.add(myDatabase.copyFromRealm(result.get(i)));
+        }
+        onResponseListener.onSuccess(usersResponses);
+    }
+
+    public void saveUsersResponse(
+            final UsersResponse usersResponse,
+            final OnResponseListener<UsersResponse> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
                     @Override
-                    public void run() {
-                        myRoomDatabase
-                                .postsListResponseDao()
-                                .savePostsListResponse(postsListResponse);
-                        passSuccessResultToUi(postsListResponse, onResponseListener);
+                    public void execute(Realm realm) {
+                        realm.copyToRealm(usersResponse);
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        onResponseListener.onSuccess(usersResponse);
                     }
                 });
     }
 
     public void savePostsListResponses(
             final java.util.List<com.motiv.example.PostsListResponse> postsListResponses,
-            final com.motiv.example.OnResponseListener<
-                            java.util.List<com.motiv.example.PostsListResponse>>
+            final OnResponseListener<java.util.List<com.motiv.example.PostsListResponse>>
                     onResponseListener) {
-        updatePostsListResponses(postsListResponses);
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        myRoomDatabase
-                                .postsListResponseDao()
-                                .savePostsListResponses(postsListResponses);
-                        passSuccessResultToUi(postsListResponses, onResponseListener);
-                    }
-                });
-    }
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
 
-    public void loadPostsListResponses(
-            final com.motiv.example.OnResponseListener<
-                            java.util.List<com.motiv.example.PostsListResponse>>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
                     @Override
-                    public void run() {
-                        final List<PostsListResponseWithReferences> resultWithReferences =
-                                myRoomDatabase.postsListResponseDao().getPostsListResponses();
-                        List<PostsListResponse> result = new ArrayList<>();
-                        for (PostsListResponseWithReferences withReference : resultWithReferences) {
-                            result.add(withReference.getPostsListResponse());
+                    public void execute(Realm realm) {
+
+                        for (PostsListResponse postsListResponse : postsListResponses) {
+                            realm.copyToRealm(postsListResponse);
                         }
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
 
-                        passSuccessResultToUi(result, onResponseListener);
+                    @Override
+                    public void onSuccess() {
+
+                        onResponseListener.onSuccess(postsListResponses);
                     }
                 });
     }
 
     public void loadPostsListResponse(
             final java.lang.String id,
-            final com.motiv.example.OnResponseListener<com.motiv.example.PostsListResponse>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        final PostsListResponseWithReferences resultWithReference =
-                                myRoomDatabase.postsListResponseDao().getPostsListResponse(id);
-                        passSuccessResultToUi(
-                                resultWithReference.getPostsListResponse(), onResponseListener);
-                    }
-                });
+            final OnResponseListener<com.motiv.example.PostsListResponse> onResponseListener) {
+        PostsListResponse realmResponse =
+                myDatabase.where(PostsListResponse.class).equalTo("id", id).findFirst();
+        PostsListResponse result = myDatabase.copyFromRealm(realmResponse);
+        onResponseListener.onSuccess(result);
     }
 
-    public void savePost(
-            final com.motiv.example.Post post,
-            final com.motiv.example.OnResponseListener<com.motiv.example.Post> onResponseListener) {
-        updatePost(post);
-        executor.execute(
-                new Runnable() {
+    public void loadPostsListResponses(
+            final OnResponseListener<java.util.List<com.motiv.example.PostsListResponse>>
+                    onResponseListener) {
+        RealmResults<PostsListResponse> result =
+                myDatabase.where(PostsListResponse.class).findAll();
+        final List<PostsListResponse> postsListResponses = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            postsListResponses.add(myDatabase.copyFromRealm(result.get(i)));
+        }
+        onResponseListener.onSuccess(postsListResponses);
+    }
+
+    public void savePostsListResponse(
+            final PostsListResponse postsListResponse,
+            final OnResponseListener<PostsListResponse> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
                     @Override
-                    public void run() {
-                        myRoomDatabase.postDao().savePost(post);
-                        passSuccessResultToUi(post, onResponseListener);
+                    public void execute(Realm realm) {
+                        realm.copyToRealm(postsListResponse);
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        onResponseListener.onSuccess(postsListResponse);
                     }
                 });
     }
 
     public void savePosts(
             final java.util.List<com.motiv.example.Post> posts,
-            final com.motiv.example.OnResponseListener<java.util.List<com.motiv.example.Post>>
-                    onResponseListener) {
-        updatePosts(posts);
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        myRoomDatabase.postDao().savePosts(posts);
-                        passSuccessResultToUi(posts, onResponseListener);
-                    }
-                });
-    }
+            final OnResponseListener<java.util.List<com.motiv.example.Post>> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
 
-    public void loadPosts(
-            final com.motiv.example.OnResponseListener<java.util.List<com.motiv.example.Post>>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
                     @Override
-                    public void run() {
-                        final List<PostWithReferences> resultWithReferences =
-                                myRoomDatabase.postDao().getPosts();
-                        List<Post> result = new ArrayList<>();
-                        for (PostWithReferences withReference : resultWithReferences) {
-                            result.add(withReference.getPost());
+                    public void execute(Realm realm) {
+
+                        for (Post post : posts) {
+                            realm.copyToRealm(post);
                         }
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
 
-                        passSuccessResultToUi(result, onResponseListener);
+                    @Override
+                    public void onSuccess() {
+
+                        onResponseListener.onSuccess(posts);
                     }
                 });
     }
 
     public void loadPost(
             final java.lang.String id,
-            final com.motiv.example.OnResponseListener<com.motiv.example.Post> onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        final PostWithReferences resultWithReference =
-                                myRoomDatabase.postDao().getPost(id);
-                        passSuccessResultToUi(resultWithReference.getPost(), onResponseListener);
-                    }
-                });
+            final OnResponseListener<com.motiv.example.Post> onResponseListener) {
+        Post realmResponse = myDatabase.where(Post.class).equalTo("id", id).findFirst();
+        Post result = myDatabase.copyFromRealm(realmResponse);
+        onResponseListener.onSuccess(result);
     }
 
-    public void savePhotosListResponse(
-            final com.motiv.example.PhotosListResponse photosListResponse,
-            final com.motiv.example.OnResponseListener<com.motiv.example.PhotosListResponse>
-                    onResponseListener) {
-        updatePhotosListResponse(photosListResponse);
-        executor.execute(
-                new Runnable() {
+    public void loadPosts(
+            final OnResponseListener<java.util.List<com.motiv.example.Post>> onResponseListener) {
+        RealmResults<Post> result = myDatabase.where(Post.class).findAll();
+        final List<Post> posts = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            posts.add(myDatabase.copyFromRealm(result.get(i)));
+        }
+        onResponseListener.onSuccess(posts);
+    }
+
+    public void savePost(final Post post, final OnResponseListener<Post> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
                     @Override
-                    public void run() {
-                        myRoomDatabase
-                                .photosListResponseDao()
-                                .savePhotosListResponse(photosListResponse);
-                        passSuccessResultToUi(photosListResponse, onResponseListener);
+                    public void execute(Realm realm) {
+                        realm.copyToRealm(post);
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        onResponseListener.onSuccess(post);
                     }
                 });
     }
 
     public void savePhotosListResponses(
             final java.util.List<com.motiv.example.PhotosListResponse> photosListResponses,
-            final com.motiv.example.OnResponseListener<
-                            java.util.List<com.motiv.example.PhotosListResponse>>
+            final OnResponseListener<java.util.List<com.motiv.example.PhotosListResponse>>
                     onResponseListener) {
-        updatePhotosListResponses(photosListResponses);
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        myRoomDatabase
-                                .photosListResponseDao()
-                                .savePhotosListResponses(photosListResponses);
-                        passSuccessResultToUi(photosListResponses, onResponseListener);
-                    }
-                });
-    }
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
 
-    public void loadPhotosListResponses(
-            final com.motiv.example.OnResponseListener<
-                            java.util.List<com.motiv.example.PhotosListResponse>>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
                     @Override
-                    public void run() {
-                        final List<PhotosListResponseWithReferences> resultWithReferences =
-                                myRoomDatabase.photosListResponseDao().getPhotosListResponses();
-                        List<PhotosListResponse> result = new ArrayList<>();
-                        for (PhotosListResponseWithReferences withReference :
-                                resultWithReferences) {
-                            result.add(withReference.getPhotosListResponse());
+                    public void execute(Realm realm) {
+
+                        for (PhotosListResponse photosListResponse : photosListResponses) {
+                            realm.copyToRealm(photosListResponse);
                         }
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
 
-                        passSuccessResultToUi(result, onResponseListener);
+                    @Override
+                    public void onSuccess() {
+
+                        onResponseListener.onSuccess(photosListResponses);
                     }
                 });
     }
 
     public void loadPhotosListResponse(
             final java.lang.String id,
-            final com.motiv.example.OnResponseListener<com.motiv.example.PhotosListResponse>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        final PhotosListResponseWithReferences resultWithReference =
-                                myRoomDatabase.photosListResponseDao().getPhotosListResponse(id);
-                        passSuccessResultToUi(
-                                resultWithReference.getPhotosListResponse(), onResponseListener);
-                    }
-                });
+            final OnResponseListener<com.motiv.example.PhotosListResponse> onResponseListener) {
+        PhotosListResponse realmResponse =
+                myDatabase.where(PhotosListResponse.class).equalTo("id", id).findFirst();
+        PhotosListResponse result = myDatabase.copyFromRealm(realmResponse);
+        onResponseListener.onSuccess(result);
     }
 
-    public void savePhoto(
-            final com.motiv.example.Photo photo,
-            final com.motiv.example.OnResponseListener<com.motiv.example.Photo>
+    public void loadPhotosListResponses(
+            final OnResponseListener<java.util.List<com.motiv.example.PhotosListResponse>>
                     onResponseListener) {
-        updatePhoto(photo);
-        executor.execute(
-                new Runnable() {
+        RealmResults<PhotosListResponse> result =
+                myDatabase.where(PhotosListResponse.class).findAll();
+        final List<PhotosListResponse> photosListResponses = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            photosListResponses.add(myDatabase.copyFromRealm(result.get(i)));
+        }
+        onResponseListener.onSuccess(photosListResponses);
+    }
+
+    public void savePhotosListResponse(
+            final PhotosListResponse photosListResponse,
+            final OnResponseListener<PhotosListResponse> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
                     @Override
-                    public void run() {
-                        myRoomDatabase.photoDao().savePhoto(photo);
-                        passSuccessResultToUi(photo, onResponseListener);
+                    public void execute(Realm realm) {
+                        realm.copyToRealm(photosListResponse);
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        onResponseListener.onSuccess(photosListResponse);
                     }
                 });
     }
 
     public void savePhotos(
             final java.util.List<com.motiv.example.Photo> photos,
-            final com.motiv.example.OnResponseListener<java.util.List<com.motiv.example.Photo>>
-                    onResponseListener) {
-        updatePhotos(photos);
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        myRoomDatabase.photoDao().savePhotos(photos);
-                        passSuccessResultToUi(photos, onResponseListener);
-                    }
-                });
-    }
+            final OnResponseListener<java.util.List<com.motiv.example.Photo>> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
 
-    public void loadPhotos(
-            final com.motiv.example.OnResponseListener<java.util.List<com.motiv.example.Photo>>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
                     @Override
-                    public void run() {
-                        final List<PhotoWithReferences> resultWithReferences =
-                                myRoomDatabase.photoDao().getPhotos();
-                        List<Photo> result = new ArrayList<>();
-                        for (PhotoWithReferences withReference : resultWithReferences) {
-                            result.add(withReference.getPhoto());
+                    public void execute(Realm realm) {
+
+                        for (Photo photo : photos) {
+                            realm.copyToRealm(photo);
                         }
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
 
-                        passSuccessResultToUi(result, onResponseListener);
+                    @Override
+                    public void onSuccess() {
+
+                        onResponseListener.onSuccess(photos);
                     }
                 });
     }
 
     public void loadPhoto(
             final java.lang.String id,
-            final com.motiv.example.OnResponseListener<com.motiv.example.Photo>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        final PhotoWithReferences resultWithReference =
-                                myRoomDatabase.photoDao().getPhoto(id);
-                        passSuccessResultToUi(resultWithReference.getPhoto(), onResponseListener);
-                    }
-                });
+            final OnResponseListener<com.motiv.example.Photo> onResponseListener) {
+        Photo realmResponse = myDatabase.where(Photo.class).equalTo("id", id).findFirst();
+        Photo result = myDatabase.copyFromRealm(realmResponse);
+        onResponseListener.onSuccess(result);
     }
 
-    public void saveAuthToken(
-            final com.motiv.example.AuthToken authToken,
-            final com.motiv.example.OnResponseListener<com.motiv.example.AuthToken>
-                    onResponseListener) {
-        executor.execute(
-                new Runnable() {
+    public void loadPhotos(
+            final OnResponseListener<java.util.List<com.motiv.example.Photo>> onResponseListener) {
+        RealmResults<Photo> result = myDatabase.where(Photo.class).findAll();
+        final List<Photo> photos = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            photos.add(myDatabase.copyFromRealm(result.get(i)));
+        }
+        onResponseListener.onSuccess(photos);
+    }
+
+    public void savePhoto(final Photo photo, final OnResponseListener<Photo> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
                     @Override
-                    public void run() {
-                        myRoomDatabase.authTokenDao().saveAuthToken(authToken);
-                        passSuccessResultToUi(authToken, onResponseListener);
+                    public void execute(Realm realm) {
+                        realm.copyToRealm(photo);
+                    }
+                },
+                new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        onResponseListener.onSuccess(photo);
                     }
                 });
     }
 
     public void saveAuthTokens(
             final java.util.List<com.motiv.example.AuthToken> authTokens,
-            final com.motiv.example.OnResponseListener<java.util.List<com.motiv.example.AuthToken>>
+            final OnResponseListener<java.util.List<com.motiv.example.AuthToken>>
                     onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
 
-        executor.execute(
-                new Runnable() {
                     @Override
-                    public void run() {
-                        myRoomDatabase.authTokenDao().saveAuthTokens(authTokens);
-                        passSuccessResultToUi(authTokens, onResponseListener);
+                    public void execute(Realm realm) {
+
+                        for (AuthToken authToken : authTokens) {
+                            realm.copyToRealm(authToken);
+                        }
                     }
-                });
-    }
+                },
+                new Realm.Transaction.OnSuccess() {
 
-    public void loadAuthTokens(
-            final com.motiv.example.OnResponseListener<java.util.List<com.motiv.example.AuthToken>>
-                    onResponseListener) {
-
-        executor.execute(
-                new Runnable() {
                     @Override
-                    public void run() {
-                        final List<AuthToken> result =
-                                myRoomDatabase.authTokenDao().getAuthTokens();
-                        passSuccessResultToUi(result, onResponseListener);
+                    public void onSuccess() {
+
+                        onResponseListener.onSuccess(authTokens);
                     }
                 });
     }
 
     public void loadAuthToken(
             final java.lang.String id,
-            final com.motiv.example.OnResponseListener<com.motiv.example.AuthToken>
+            final OnResponseListener<com.motiv.example.AuthToken> onResponseListener) {
+        AuthToken realmResponse = myDatabase.where(AuthToken.class).equalTo("id", id).findFirst();
+        AuthToken result = myDatabase.copyFromRealm(realmResponse);
+        onResponseListener.onSuccess(result);
+    }
+
+    public void loadAuthTokens(
+            final OnResponseListener<java.util.List<com.motiv.example.AuthToken>>
                     onResponseListener) {
+        RealmResults<AuthToken> result = myDatabase.where(AuthToken.class).findAll();
+        final List<AuthToken> authTokens = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            authTokens.add(myDatabase.copyFromRealm(result.get(i)));
+        }
+        onResponseListener.onSuccess(authTokens);
+    }
 
-        executor.execute(
-                new Runnable() {
+    public void saveAuthToken(
+            final AuthToken authToken, final OnResponseListener<AuthToken> onResponseListener) {
+        myDatabase.executeTransactionAsync(
+                new Realm.Transaction() {
                     @Override
-                    public void run() {
-                        final AuthToken result = myRoomDatabase.authTokenDao().getAuthToken(id);
-                        passSuccessResultToUi(result, onResponseListener);
+                    public void execute(Realm realm) {
+                        realm.copyToRealm(authToken);
                     }
-                });
-    }
-
-    public static void updateUser(User user) {
-        user.setLinksId(user.getLinks().getId());
-    }
-
-    public static void updateUsers(java.util.List<User> users) {
-        for (User user : users) {
-            updateUser(user);
-        }
-    }
-
-    public static void updateLinks(Links links) {
-        links.setEditId(links.getEdit().getId());
-        links.setSelfId(links.getSelf().getId());
-        links.setAvatarId(links.getAvatar().getId());
-    }
-
-    public static void updateLinkss(java.util.List<Links> linkss) {
-        for (Links links : linkss) {
-            updateLinks(links);
-        }
-    }
-
-    public static void updateUserResponse(UserResponse userResponse) {
-        userResponse.setResultId(userResponse.getResult().getId());
-        userResponse.setMetaId(userResponse.getMeta().getId());
-    }
-
-    public static void updateUserResponses(java.util.List<UserResponse> userResponses) {
-        for (UserResponse userResponse : userResponses) {
-            updateUserResponse(userResponse);
-        }
-    }
-
-    public static void updateUsersResponse(UsersResponse usersResponse) {
-        usersResponse.setMetaId(usersResponse.getMeta().getId());
-        for (com.motiv.example.User user : usersResponse.getResult()) {
-            user.setResultOwnerId(usersResponse.getId());
-        }
-    }
-
-    public static void updateUsersResponses(java.util.List<UsersResponse> usersResponses) {
-        for (UsersResponse usersResponse : usersResponses) {
-            updateUsersResponse(usersResponse);
-        }
-    }
-
-    public static void updatePostsListResponse(PostsListResponse postsListResponse) {
-        postsListResponse.setMetaId(postsListResponse.getMeta().getId());
-        for (com.motiv.example.Post post : postsListResponse.getResult()) {
-            post.setResultOwnerId(postsListResponse.getId());
-        }
-    }
-
-    public static void updatePostsListResponses(
-            java.util.List<PostsListResponse> postsListResponses) {
-        for (PostsListResponse postsListResponse : postsListResponses) {
-            updatePostsListResponse(postsListResponse);
-        }
-    }
-
-    public static void updatePost(Post post) {
-        post.setLinksId(post.getLinks().getId());
-    }
-
-    public static void updatePosts(java.util.List<Post> posts) {
-        for (Post post : posts) {
-            updatePost(post);
-        }
-    }
-
-    public static void updatePhotosListResponse(PhotosListResponse photosListResponse) {
-        photosListResponse.setMetaId(photosListResponse.getMeta().getId());
-        for (com.motiv.example.Photo photo : photosListResponse.getResult()) {
-            photo.setResultOwnerId(photosListResponse.getId());
-        }
-    }
-
-    public static void updatePhotosListResponses(
-            java.util.List<PhotosListResponse> photosListResponses) {
-        for (PhotosListResponse photosListResponse : photosListResponses) {
-            updatePhotosListResponse(photosListResponse);
-        }
-    }
-
-    public static void updatePhoto(Photo photo) {
-        photo.setLinksId(photo.getLinks().getId());
-    }
-
-    public static void updatePhotos(java.util.List<Photo> photos) {
-        for (Photo photo : photos) {
-            updatePhoto(photo);
-        }
-    }
-
-    private <T> void passSuccessResultToUi(
-            final T result, final OnResponseListener<T> onResponseListener) {
-        handler.post(
-                new Runnable() {
+                },
+                new Realm.Transaction.OnSuccess() {
                     @Override
-                    public void run() {
-                        onResponseListener.onSuccess(result);
+                    public void onSuccess() {
+                        onResponseListener.onSuccess(authToken);
                     }
                 });
     }

@@ -11,21 +11,24 @@ import androidx.fragment.app.*;
 import androidx.recyclerview.widget.*;
 import androidx.recyclerview.widget.RecyclerView;
 import com.motiv.example.dao.DaoRepository;
-import com.motiv.example.dao.DaoRepositoryFactory;
 import com.motiv.example.dao.LocalStorage;
-import com.motiv.example.databinding.UsersfragmentBinding;
+import dagger.*;
+import dagger.android.*;
+import dagger.android.support.*;
+import javax.inject.*;
 
-public class UsersFragment extends Fragment {
+public class UsersFragment extends Fragment implements UsersFragmentContract.View {
 
-    private UsersfragmentBinding usersfragmentBinding;
+    @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
+    private UsersFragmentContract.Presenter presenter;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
     private PhotosPagerAdapter photosPagerAdapter;
     private ViewPagerFragmentsAdapter viewPagerFragmentsAdapter;
-    private GoApi goApi;
-    private AuthApi authApi;
-    private DaoRepository daoRepository;
-    private LocalStorage localStorage;
+    @Inject GoApi goApi;
+    @Inject AuthApi authApi;
+    @Inject DaoRepository daoRepository;
+    @Inject LocalStorage localStorage;
     private NavigationController navigationController;
     private LinearLayout linearlayout00;
     private RecyclerView recyclerview10;
@@ -34,9 +37,9 @@ public class UsersFragment extends Fragment {
     public View onCreateView(
             LayoutInflater inflater,
             @Nullable ViewGroup parent,
-            @Nullable Bundle savedInstanceState) {
+            final @Nullable Bundle savedInstanceState) {
 
-        usersfragmentBinding = UsersfragmentBinding.inflate(inflater);
+        View v = inflater.inflate(R.layout.usersfragment, parent, false);
 
         usersListAdapter = new UsersListAdapter();
         postsAdapter = new PostsAdapter();
@@ -44,49 +47,48 @@ public class UsersFragment extends Fragment {
         viewPagerFragmentsAdapter =
                 new ViewPagerFragmentsAdapter(
                         UsersFragment.this.getActivity().getSupportFragmentManager());
-        daoRepository = DaoRepositoryFactory.getInstance(UsersFragment.this.getActivity());
-        localStorage = LocalStorage.getInstance(UsersFragment.this.getActivity());
         navigationController = new NavigationController(UsersFragment.this.getActivity());
-        goApi = GoApiFactory.getInstance(localStorage);
-        authApi = AuthApiFactory.getInstance(localStorage);
-        linearlayout00 = usersfragmentBinding.linearlayout00;
-        recyclerview10 = usersfragmentBinding.recyclerview10;
+        linearlayout00 = (LinearLayout) v.findViewById(R.id.linearlayout00);
+        recyclerview10 = (RecyclerView) v.findViewById(R.id.recyclerview10);
+        presenter =
+                new UsersFragmentPresenter(
+                        UsersFragment.this, goApi, authApi, daoRepository, localStorage);
 
         recyclerview10.setLayoutManager(new LinearLayoutManager(UsersFragment.this.getActivity()));
 
         recyclerview10.setAdapter(usersListAdapter);
         ;
-        goApi.getUsersList(
-                new com.motiv.example.OnResponseListener<com.motiv.example.UsersResponse>() {
-                    @Override
-                    public void onSuccess(com.motiv.example.UsersResponse argument0) {
-                        usersListAdapter.setData(argument0.getResult());
-                        Toast.makeText(
-                                        UsersFragment.this.getActivity(),
-                                        argument0.getMeta().getMessage(),
-                                        Toast.LENGTH_LONG)
-                                .show();
-                        ;
-                    }
-
-                    @Override
-                    public void onError(Exception argument0) {
-                        Toast.makeText(
-                                        UsersFragment.this.getActivity(),
-                                        "error fetching data",
-                                        Toast.LENGTH_LONG)
-                                .show();
-                        ;
-                    }
-                });
+        presenter.goApigetUsersList();
         usersListAdapter.setOnItemClickListener(
                 new com.motiv.example.UsersListAdapter.OnItemClickListener() {
                     @Override
                     public void onItemClick(int argument0, com.motiv.example.User argument1) {
-                        navigationController.startUserActivity(argument1);
+                        presenter.eloonItemClick(argument0, argument1);
                     }
                 });
 
-        return usersfragmentBinding.getRoot();
+        return v;
+    }
+
+    @Override
+    public void usersListAdaptersetData(java.util.List<com.motiv.example.User> arg0) {
+        usersListAdapter.setData(arg0);
+    }
+
+    @Override
+    public void showToast(java.lang.String arg0) {
+        Toast.makeText(UsersFragment.this.getActivity(), arg0, Toast.LENGTH_LONG).show();
+        ;
+    }
+
+    @Override
+    public void navigationControllerstartUserActivity(com.motiv.example.User arg0) {
+        navigationController.startUserActivity(arg0);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        AndroidSupportInjection.inject(this);
     }
 }
