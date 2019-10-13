@@ -4,35 +4,43 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.*;
 import com.motiv.example.dao.DaoRepository;
 import com.motiv.example.dao.LocalStorage;
-import com.motiv.example.databinding.PostdetailsactivityBinding;
+import dagger.*;
+import dagger.android.*;
+import dagger.android.support.*;
+import javax.inject.*;
 
-public class PostDetailsActivity extends AppCompatActivity {
+public class PostDetailsActivity extends AppCompatActivity implements HasSupportFragmentInjector {
 
-    private PostdetailsactivityBinding postdetailsactivityBinding;
+    @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     private java.lang.String postId;
     private UsersListAdapter usersListAdapter;
     private PostsAdapter postsAdapter;
     private PhotosPagerAdapter photosPagerAdapter;
     private ViewPagerFragmentsAdapter viewPagerFragmentsAdapter;
-    private GoApi goApi;
-    private AuthApi authApi;
-    private DaoRepository daoRepository =
-            DaoRepositoryFactory.getInstance(PostDetailsActivity.this);
-    private LocalStorage localStorage;
+    @Inject GoApi goApi;
+    @Inject AuthApi authApi;
+    @Inject DaoRepository daoRepository;
+    @Inject LocalStorage localStorage;
     private NavigationController navigationController;
     private LinearLayout linearlayout00;
     private TextView textview10;
     private TextView textview11;
 
     @Override
+    public AndroidInjector<Fragment> supportFragmentInjector() {
+
+        return dispatchingAndroidInjector;
+    }
+
+    @Override
     protected void onCreate(@Nullable android.os.Bundle savedInstanceState) {
 
+        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
-        postdetailsactivityBinding =
-                DataBindingUtil.setContentView(this, R.layout.postdetailsactivity);
+        setContentView(R.layout.postdetailsactivity);
 
         String postId = getIntent().getStringExtra("postId");
 
@@ -41,13 +49,10 @@ public class PostDetailsActivity extends AppCompatActivity {
         photosPagerAdapter = new PhotosPagerAdapter();
         viewPagerFragmentsAdapter =
                 new ViewPagerFragmentsAdapter(PostDetailsActivity.this.getSupportFragmentManager());
-        localStorage = LocalStorage.getInstance(PostDetailsActivity.this);
         navigationController = new NavigationController(PostDetailsActivity.this);
-        goApi = GoApiFactory.getInstance(localStorage);
-        authApi = AuthApiFactory.getInstance(localStorage);
-        linearlayout00 = postdetailsactivityBinding.linearlayout00;
-        textview10 = postdetailsactivityBinding.textview10;
-        textview11 = postdetailsactivityBinding.textview11;
+        linearlayout00 = (LinearLayout) findViewById(R.id.linearlayout00);
+        textview10 = (TextView) findViewById(R.id.textview10);
+        textview11 = (TextView) findViewById(R.id.textview11);
 
         daoRepository.loadPost(
                 postId,

@@ -1,24 +1,45 @@
 package com.motiv.example;
 
-import android.widget.ImageView;
 import androidx.annotation.NonNull;
-import androidx.databinding.BindingAdapter;
+import androidx.fragment.app.*;
+import androidx.room.*;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 import com.google.gson.reflect.*;
-import com.squareup.picasso.Picasso;
-import io.realm.*;
+import dagger.*;
+import dagger.android.*;
+import dagger.android.support.*;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.inject.*;
 
-public class UserResponse extends RealmObject {
+@Entity(tableName = "userresponse")
+public class UserResponse {
 
     private static final Gson gson = new Gson();
-    @NonNull private java.lang.String id = UUID.randomUUID().toString();
+    @NonNull @PrimaryKey private java.lang.String id = UUID.randomUUID().toString();
 
+    @ColumnInfo(name = "resultId")
+    @ForeignKey(
+        entity = com.motiv.example.User.class,
+        parentColumns = "id",
+        childColumns = "resultId"
+    )
+    private java.lang.String resultId;
+
+    @ColumnInfo(name = "metaId")
+    @ForeignKey(
+        entity = com.motiv.example.Meta.class,
+        parentColumns = "id",
+        childColumns = "metaId"
+    )
+    private java.lang.String metaId;
+
+    @Ignore
     @SerializedName("result")
     private com.motiv.example.User result;
 
+    @Ignore
     @SerializedName("_meta")
     private com.motiv.example.Meta meta;
 
@@ -49,12 +70,6 @@ public class UserResponse extends RealmObject {
         this.meta = meta;
     }
 
-    @BindingAdapter({"bind:imageUrl"})
-    public static void loadImage(ImageView view, java.lang.String url) {
-
-        Picasso.with(view.getContext()).load(url).into(view);
-    }
-
     public static UserResponse fromJson(String json) {
         return gson.fromJson(json, UserResponse.class);
     }
@@ -69,5 +84,21 @@ public class UserResponse extends RealmObject {
 
     public static UserResponse[] fromJsonArray(String array) {
         return gson.fromJson(array, UserResponse[].class);
+    }
+
+    public java.lang.String getResultId() {
+        return this.resultId;
+    };
+
+    public void setResultId(java.lang.String resultId) {
+        this.resultId = resultId;
+    }
+
+    public java.lang.String getMetaId() {
+        return this.metaId;
+    };
+
+    public void setMetaId(java.lang.String metaId) {
+        this.metaId = metaId;
     }
 }
